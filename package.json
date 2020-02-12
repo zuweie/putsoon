@@ -1,0 +1,69 @@
+{
+  "name": "donkey",
+  "version": "1.0.0",
+  "description": "mini media cloud",
+  "private": true,
+  "egg": {
+    "declarations": true
+  },
+  "dependencies": {
+    "bcrypt": "^3.0.7",
+    "colors": "^1.4.0",
+    "egg": "^2.15.1",
+    "egg-mini-media-server": "file:../egg-media-server",
+    "egg-passport": "^2.1.1",
+    "egg-passport-jwt": "^1.0.0",
+    "egg-scripts": "^2.11.0",
+    "egg-swagger-doc": "^2.3.2",
+    "jsonwebtoken": "^8.5.1",
+    "md5": "^2.2.1",
+    "md5-file": "^4.0.0",
+    "mime": "^2.4.4",
+    "mkdir-recursive": "^0.4.0",
+    "rmdir-recursive": "0.0.1",
+    "save": "^2.4.0",
+    "sequelize": "^5.21.3",
+    "sequelize-cli": "^5.5.1",
+    "shelljs": "^0.8.3",
+    "sqlite3": "^4.1.1",
+    "unique-string": "^2.0.0",
+    "yargs": "^15.1.0"
+  },
+  "devDependencies": {
+    "autod": "^3.0.1",
+    "autod-egg": "^1.1.0",
+    "egg-bin": "^4.11.0",
+    "egg-ci": "^1.11.0",
+    "egg-mock": "^3.21.0",
+    "eslint": "^5.13.0",
+    "eslint-config-egg": "^7.1.0"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "bin": {
+    "media-cli": "backend-console/index.js"
+  },
+  "scripts": {
+    "start": "egg-scripts start --daemon --title=egg-server-media",
+    "stop": "egg-scripts stop --title=egg-server-media",
+    "dev": "egg-bin dev",
+    "debug": "egg-bin debug",
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod",
+    "install": "./backend-console/index.js install"
+  },
+  "ci": {
+    "version": "10"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "zuweie",
+  "license": "MIT"
+}
