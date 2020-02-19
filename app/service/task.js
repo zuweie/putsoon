@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 15:01:49
- * @LastEditTime: 2020-02-19 11:17:32
+ * @LastEditTime: 2020-02-19 13:00:57
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task.js
@@ -20,7 +20,7 @@ class TaskService extends Service {
         for (let i=0; i<args.length; ++i) {
             key += '/'+args[i];
         }
-        console.debug('key for task', key);
+        console.debug('task.js#calKey@key', key);
 
         return md5(key);
     }
@@ -28,13 +28,14 @@ class TaskService extends Service {
     implodeParams (args) {
         let params = '';
         for (let i=0; i<args.length; ++i) {
-            params = '/'+args[i];
+            params += '/'+args[i];
         }
         return params;
     }
 
     explodeParams (params) {
         params = params.split('\/');
+        console.debug('task.js#explodeParams@params', params);
         for (let i=0; i<params.length; ++i) {
             if (params[i] == ''||params[i]==null||typeof(params[i])==undefined) {
                 params.splice(i, 1);
@@ -79,7 +80,7 @@ class TaskService extends Service {
 
             let handler = task.handler;
             let args = this.explodeParams(task.params);
-            console.debug('task#execTask@args', )
+            console.debug('task#execTask@args', args);
             let dest_dir = '';
             try{
                 dest_dir = this.service.media.mkSaveDir(media, handler, args);

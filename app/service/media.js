@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-02-19 10:51:26
+ * @LastEditTime: 2020-02-19 13:01:44
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -285,7 +285,7 @@ class MediaService extends Service {
 
     calSaveDir(media, handler, args=[]) {
 
-        let hargs_save_dir = '/'+handler
+        let hargs_save_dir = '/'+media.firstname+'/'+handler
         for (let i=0; i<args.length; ++i) {
             hargs_save_dir += '/'+args[i];
         }
