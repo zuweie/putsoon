@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime : 2020-02-11 16:21:35
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-02-19 12:04:48
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/config/config.default.js
  */
@@ -52,16 +52,14 @@ module.exports = appInfo => {
     secret: 'qweRRTTREtiodfjl!@#$@#%22345',
   };
   config.multipart = {
-    mode: 'file'
+    mode: 'file',
+    fileExtensions: ['.pdf', '.docx'],
   };
 
   config.bucket = {
     root: __dirname+'/../media_source/',
   }
   
-  config.media_handler = {
-    root: __dirname+'../media_handler/'
-  }
   return {
     ...config,
     ...userConfig,

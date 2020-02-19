@@ -1,15 +1,15 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime : 2020-02-12 11:22:49
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-02-19 10:48:04
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
  */
 'use strict';
 const md5 = require('md5');
 const Controller = require('egg').Controller;
-
+const fs = require('fs');
 /**
  * @controller Media
  */
@@ -112,8 +112,27 @@ class MediaController extends Controller {
         //let _media = await ctx.service.media.getMediaFile(params.signature);
         let result = false;
         if (params.query != '') {
-            // 处理
-            result = await ctx.service.media.getCopyMediaFileReadStream(params.signature, params.media_handler, params.handler_parameters);
+            // 处理handler
+            try {
+                let _media = await this.service.media.getMediaFile(params.signature);
+                if (_media) {
+                    
+                    result = await ctx.service.media.TryToGetCopyMediafile(_media, params.media_handler, params.handler_parameters);
+                    console.debug('controller#media.js#export_file@result', result);
+                    if (fs.existsSync(result.file)) {
+                        result.stream = fs.createReadStream(result.file);
+                    }else{
+                        result = false;
+                    }
+                }else{
+                    ctx.status = 404;
+                }
+            }catch(e) {
+                console.log('controller#media.js@e',e);
+                ctx.status = 400;
+                ctx.body = e;
+                return;
+            }
         }else{
             result = await ctx.service.media.getMediaFileReadStream(params.signature);
         }

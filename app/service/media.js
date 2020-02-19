@@ -1,14 +1,15 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime : 2020-02-12 12:09:04
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-02-19 10:51:26
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
  */
 'use strict';
-const mime    = require('mime');
 const fs      = require('fs');
+const fx = require('mkdir-recursive');
+const FileType = require('file-type');
 const path    = require('path');
 const Service = require('egg').Service;
 const sequelize = require('../../database/conn')();
@@ -16,6 +17,8 @@ const Op = require('sequelize').Op;
 const md5File = require('md5-file/promise');
 const md5     = require('md5');
 const Media = require('../../database/sequelize_model')('media');
+
+
 
 class MediaService extends Service {
 
@@ -143,38 +146,111 @@ class MediaService extends Service {
             [Op.or]: [{signature: signature}, {firstname: signature}]
         }});
     }
+   
+    /**
+     * BIG BIG IMPORT FUNCTION
+     * @param {*} _media 
+     * @param {*} _handler 
+     * @param {*} args 
+     */
+    async TryToGetCopyMediafile(_media, _handler, args=[], sync=true) {
 
-    async getCopyMediaFileReadStream (signature, handler, args) {
-        let media = await this.getMediaFile(signature);
-        if (media) {
-            let copy_file_path = await this.TryToGetCopyMediafile(media, handler, args);
+        /**
+         * make the cacheDir first
+         */
+        let context = this;
+        return new Promise( async (resolve, reject) => {
 
-            if (copy_file_path && fs.existsSync(copy_file_path)) {
-                return {stream: fs.createReadStream(copy_file_path), mime:mime.getType(copy_file_path)};
+            let taskey = context.service.task.calKey(_media, _handler, args);
+            let task = await context.service.task.findTask(taskey);
+            let timer = -1;
+            let tasklistener = null;
+            /* if no task try to post a new one */
+            if (!task) {
+                try{
+                    let res = await context.service.task.postTask(_media, _handler, args);
+                    if (res) {
+
+                        // add listener here ?
+                        // 1 listene the message
+                        tasklistener = {};
+                        tasklistener.onTaskStatus = async (taskey) => {
+                            console.debug('media.js#tasklistener#onTaskStatus@taskey', taskey);
+                            let on_task = await context.service.task.findTask(taskey);
+                            //console.debug('media.js#tasklistener#onTaskStataus@task.status', on_task);
+                            if (on_task.status == 'done') {
+                                let info = context.service.task.fileInfo2Obj(on_task.file_info);
+                                resolve({ file: on_task.dest, mime: info.mime });
+                                console.debug('media.js#tasklistener#onTaskStatus@task.status == done@task.dest & info', on_task.dest, info);
+                                if (timer != -1){
+                                    console.debug('media.js#tasklistener@clearTimeout !');
+                                    clearTimeout(timer);
+                                }
+                            } else if (on_task.status == 'err') {
+                                reject(on_task.errmsg);
+                                if (timer != -1) {
+                                    console.debug('media.js#tasklistener@clearTimeout !');
+                                    clearTimeout(timer);
+                                }
+                            }
+                            context.app.rmTasklistener(tasklistener);
+                        };
+                        context.app.addTasklistener(tasklistener);
+
+                        context.app.messenger.sendToAgent('new_task', taskey);
+                        console.debug('media#trytoGetCopyMediafiel', 'sendToAgent '+taskey)
+                    }
+
+                    if (!sync) {
+                        reject('task processing');
+                    }
+                }catch(e) {
+                    console.debug(e);
+                    throw e;
+                }
             }
-        }
-        return false;
-    }
 
-    async TryToGetCopyMediafile(_media, _handler, args) {
-        let handler = this.getMediaHandler(_media, _handler, args);
-        if (handler) {
-            let result = await handler.exec();
-            //console.log('handler.exec()', result);
-            if (result) return handler.export_file_path();
-        }
-        return false;
+            if (!task) {
+                task = await context.service.task.findTask(taskey);
+            }
+
+            if (!task) {
+                reject('task fail');
+            }
+
+            if ( (task.status == 'processing') || (task.status == 'idle') ) {
+                if (!sync)
+                    reject('task is processing');
+                else {
+                    
+                    // 双重保障，
+                    console.debug('media.js#TryToGetMediafile@setTimeout');
+                    timer = setTimeout( async ()=>{
+                        // time out checking the task;
+                        task = await context.service.task.findTask(taskey);
+                        console.debug('media.js#Timer@task.status', task.status);
+                        if (task.status == 'done') {
+                            let info = context.service.task.fileInfo2Obj(task.file_info);
+                            resolve({file:task.dest, mime:info.mime});
+                        }else if (task.status == 'err') {
+                            reject(task.errmsg);
+                        }else{
+                            reject('task time out');
+                        }
+                        if (tasklistener) {
+                            context.app.rmTasklistener(tasklistener);
+                        }
+                    }, 30*1000);
+                }
+            }else if (task.status == 'done') {
+                let info = context.service.task.fileInfo2Obj(task.file_info);
+                console.debug('media.js#TryToGetCopy@task.status == done@task.dest & info', task.dest, info);
+                resolve({file:task.dest, mime:info.mime});
+            }else {
+                reject(task.errmsg);
+            }
+        });
     } 
-    
-    getMediaHandler(_media, _handler, args) {
-        //找一下有没有这个 handler。
-        let handler_script = __dirname+'/../../media_handlers/'+_handler+'.js';        
-        if (fs.existsSync(handler_script)) {
-            let handler = require(handler_script)(_media, args);
-            return handler;
-        }
-        return false;
-    }
 
     parseParameters (_path) {
         let params = _path.split('\/');
@@ -207,8 +283,28 @@ class MediaService extends Service {
         return process_data;
     }
 
-    
-    
+    calSaveDir(media, handler, args=[]) {
+
+        let hargs_save_dir = '/'+handler
+        for (let i=0; i<args.length; ++i) {
+            hargs_save_dir += '/'+args[i];
+        }
+        console.debug('hargs_save_path', hargs_save_dir);
+
+        //hargs_save_dir = md5(hargs_save_dir);
+
+        let save_dir =  path.dirname(media.path)+'/cache'+hargs_save_dir+'/';
+        console.debug('media.js#calSaveDir', save_dir)
+        return save_dir;
+    }
+
+    mkSaveDir(media, handler, args=[]) {
+        let dir = this.calSaveDir(media, handler, args);
+        if (!fs.existsSync(dir)) {
+            fx.mkdirSync(dir, {mode:666});
+        }
+        return dir;
+    }
 }
 
 module.exports = MediaService;

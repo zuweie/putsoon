@@ -1,24 +1,23 @@
 {
-  "name": "donkey",
+  "name": "donkey-cloud",
   "version": "1.0.0",
   "description": "mini media cloud",
-  "private": true,
   "egg": {
     "declarations": true
   },
   "dependencies": {
-    "bcrypt": "^3.0.7",
+    "bcrypt": "^3.0.8",
     "colors": "^1.4.0",
     "egg": "^2.15.1",
-    "egg-mini-media-server": "file:../egg-media-server",
     "egg-passport": "^2.1.1",
     "egg-passport-jwt": "^1.0.0",
     "egg-scripts": "^2.11.0",
     "egg-swagger-doc": "^2.3.2",
+    "fibers": "^4.0.2",
+    "file-type": "^14.1.2",
     "jsonwebtoken": "^8.5.1",
     "md5": "^2.2.1",
     "md5-file": "^4.0.0",
-    "mime": "^2.4.4",
     "mkdir-recursive": "^0.4.0",
     "rmdir-recursive": "0.0.1",
     "save": "^2.4.0",
@@ -32,6 +31,7 @@
   "devDependencies": {
     "autod": "^3.0.1",
     "autod-egg": "^1.1.0",
+    "donkey-plugin-slim": "file:../donkey-plugin-slim",
     "egg-bin": "^4.11.0",
     "egg-ci": "^1.11.0",
     "egg-mock": "^3.21.0",

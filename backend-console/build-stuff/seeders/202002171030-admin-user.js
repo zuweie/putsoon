@@ -13,8 +13,8 @@ module.exports = {
     return queryInterface.bulkInsert('AdminUsers', [{
       nickname: 'joe',
       login:    'admin',
-      email:    'qq@qq.com',
-      password: '$2b$10$AfllOnNd8gG5cb7nY994kurIatBG1t5IpHEjYScqqe2mQOo9ArWNu',
+      email:    '1234@qq.com',
+      password: '$2b$10$tUf.3wsUJa5M9F9n824vreI7uTmE3sLU1xNc/F1oVHv1eBWSeg9ou',
       createdAt: new Date(),
       updatedAt: new Date(),
     }], {});
