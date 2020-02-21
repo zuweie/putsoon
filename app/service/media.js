@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-02-19 13:01:44
+ * @LastEditTime: 2020-02-22 02:08:20
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -17,7 +17,7 @@ const Op = require('sequelize').Op;
 const md5File = require('md5-file/promise');
 const md5     = require('md5');
 const Media = require('../../database/sequelize_model')('media');
-
+const Task  = require('../../database/sequelize_model')('task');
 
 
 class MediaService extends Service {
@@ -77,12 +77,14 @@ class MediaService extends Service {
                     }
                     
                 }else {
-                    return this.ctx.helper.Jsonformat_err(-1, 'bucket <'+bucket+'> not exists')
+                    return this.ctx.helper.JsonFormat_err(-1, 'bucket <'+bucket+'> not exists')
                 }
                                 
+            }else{
+                return this.ctx.helper.JsonFormat_err(-1, 'file exists!');
             }
         }catch (e) {
-            return this.ctx.helper.Jsonformat_err(-1, e);
+            return this.ctx.helper.JsonFormat_err(-1, e);
         }
     }   
 
@@ -106,6 +108,7 @@ class MediaService extends Service {
 
     async delUploadMedia(media_ids, user_id) {
         let del_count = 0;
+        let context = this;
         for (let i=0; i<media_ids.length; ++i) {
             try {
                 let id = parseInt(media_ids[i]);
@@ -117,8 +120,18 @@ class MediaService extends Service {
                         try {
                             fs.unlinkSync(file_path);
                         }catch(e) {
-                            console.log(e);
+                            //console.log(e);
+                            console.debug('media.js#delUploadMedia@e', e);
                         }
+
+                        // delete task
+                        let tasks = await Task.findAll({where:{name:_m.signature}});
+
+                        tasks.forEach(async _t => {
+                            //console.debug('media.js#delUploadMedia@_t', _t);
+                            await context.service.task.deleteTasks(_t.id);
+                        });
+
                         if (!fs.existsSync(file_path)) {
                             del_count = await Media.destroy({ where: { id: _m.id } });
                         }
@@ -126,7 +139,7 @@ class MediaService extends Service {
                 });
 
             }catch (e) {
-                console.log('err', e);
+                console.debug('media.js#delUploadMedia@e', e);
             }
         }
         return del_count;
@@ -289,19 +302,19 @@ class MediaService extends Service {
         for (let i=0; i<args.length; ++i) {
             hargs_save_dir += '/'+args[i];
         }
-        console.debug('hargs_save_path', hargs_save_dir);
-
-        //hargs_save_dir = md5(hargs_save_dir);
-
-        let save_dir =  path.dirname(media.path)+'/cache'+hargs_save_dir+'/';
+        
+        console.debug('media.js#calSaveDir@hargs_save_path', hargs_save_dir);
+        hargs_save_dir = md5(hargs_save_dir);
+        let save_dir =  path.dirname(media.path)+'/cache/'+hargs_save_dir+'/';
         console.debug('media.js#calSaveDir', save_dir)
+
         return save_dir;
     }
 
     mkSaveDir(media, handler, args=[]) {
         let dir = this.calSaveDir(media, handler, args);
         if (!fs.existsSync(dir)) {
-            fx.mkdirSync(dir, {mode:666});
+            fs.mkdirSync(dir, {recursive: true});
         }
         return dir;
     }

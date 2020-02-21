@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-02-19 12:04:48
+ * @LastEditTime: 2020-02-19 23:05:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/config/config.default.js
@@ -35,6 +35,7 @@ module.exports = appInfo => {
   
   // swagger 
   config.swaggerdoc = {
+    
     dirScanner: './app/controller',
     apiInfo: {
       title: 'egg-swagger',
@@ -48,9 +49,11 @@ module.exports = appInfo => {
     routerMap: false,
     enable: true,
   };
+
   config.passportJwt = {
     secret: 'qweRRTTREtiodfjl!@#$@#%22345',
   };
+
   config.multipart = {
     mode: 'file',
     fileExtensions: ['.pdf', '.docx'],

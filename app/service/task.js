@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 15:01:49
- * @LastEditTime: 2020-02-19 13:00:57
+ * @LastEditTime: 2020-02-22 01:55:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task.js
@@ -9,6 +9,7 @@
 'use strict';
 const md5 = require('md5');
 const fs = require('fs');
+const path = require('path');
 const FileType = require('file-type');
 const Service = require('egg').Service;
 const Op = require('sequelize').Op;
@@ -187,18 +188,46 @@ class TaskService extends Service {
         return Task.findAll();
     }
     
-    deleteTask (keys) {
+    /*
+    deleteTask (key) {
         return Task.destroy({where:{
             key:key
         }});
     }
+    */
 
-    deleteTasks(ids) {
-        return Task.destroy({where:{
-            id:{
-                [Op.in]: ids
+    async deleteTasks(ids) {
+        
+        let _ids = [];
+        if (typeof ids == 'string' || typeof ids == 'number') {
+            _ids.push(ids);
+        }else {
+            _ids = ids;
+        }
+        console.debug('task.js#deleteTask@ids', ids);
+        
+        for(let i=0; i<_ids.length; ++i) {
+            let task = await Task.findByPk(_ids[i]);
+            if (task) {
+                //console.debug('task.js#deleteTasks@task', task);
+                try {
+                    if (task.dest != '') {
+
+                        if (fs.existsSync(task.dest)) {
+                            fs.unlinkSync(task.dest);
+                        }
+        
+                        let dest_dir = path.dirname(task.dest);
+                        if (fs.existsSync(dest_dir)) {
+                            fs.rmdirSync(dest_dir);
+                        } 
+                    }  
+                    return await Task.destroy({where: {id:_ids[i]}});
+                }catch(e) {
+                    console.debug('task.js#deleteTasks@e', e);
+                }
             }
-        }});
+        }
     }
     
     fileInfo2Obj( file_info ) {

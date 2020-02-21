@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-02-19 10:48:04
+ * @LastEditTime: 2020-02-22 01:59:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -33,6 +33,7 @@ class MediaController extends Controller {
         _token = this.service.token.explodeToken(_token);
         //console.log(file);
         let result = await this.service.media.saveUploadMedia(file, _token.bucket);
+        console.debug('media.js#upload@result', result);
         ctx.status = 200;
         ctx.body = result;
     }

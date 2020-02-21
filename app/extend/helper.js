@@ -16,7 +16,7 @@ module.exports = {
         return this.JsonFormat(0, 'err-ok', data);
     },
 
-    Jsonformat_err (errcode, errmsg) {
+    JsonFormat_err (errcode, errmsg) {
         return this.JsonFormat(errcode, errmsg);
     },
     

@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:32:50
- * @LastEditTime : 2020-02-12 11:03:37
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-02-22 00:46:50
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/bucket.js
  */
@@ -49,10 +49,10 @@ class BucketService extends Service {
     async deleteBuckets(ids, user_id) {
     // TODO : delete all the media has relate with this bucket
         let delete_count = 0;
-        console.log('ids', ids);
+        console.debug('bucket.js#deleteBuckets@ids', ids);
         for (let i=0; i<ids.length; ++i) {
             let b = await Bucket.findByPk(ids[i]);
-            console.log('b', b);
+            console.debug('bucket.js#deleteBucket@b', b);
             // TODO delete all the media first
             if (b) {
                 let ms = await this.service.media.getAllUploadMedia(b.bucket);
@@ -60,7 +60,7 @@ class BucketService extends Service {
                 for (let i=0; i<ms.length; ++i) {
                     media_ids.push(ms[i].id);
                 }
-                console.log('delete media in', media_ids)
+                console.debug('bucket.js#deleteBuckets@media_ids', media_ids)
                 await this.service.media.delUploadMedia(media_ids, user_id);
     
                 let b_path = this.fullBucketPath(b);
@@ -94,10 +94,7 @@ class BucketService extends Service {
 
         if (!fs.existsSync(b_path)){
             try{
-                // make bucket
-                fx.mkdirSync(b_path, {mode:666});
-                // make bucket cache
-                fx.mkdirSync(b_path+'/cache/', {mode:666});
+                fs.mkdirSync(b_path+'/cache/', {recursive:true});
             }catch(e) {
                 console.log(e);
             }
