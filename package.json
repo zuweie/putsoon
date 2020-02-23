@@ -41,9 +41,6 @@
   "engines": {
     "node": ">=10.0.0"
   },
-  "bin": {
-    "media-cli": "backend-console/index.js"
-  },
   "scripts": {
     "start": "egg-scripts start --daemon --title=egg-server-media",
     "stop": "egg-scripts stop --title=egg-server-media",

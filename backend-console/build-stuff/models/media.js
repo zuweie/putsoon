@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:47:04
- * @LastEditTime: 2020-02-07 11:31:54
- * @LastEditors: your name
+ * @LastEditTime: 2020-02-23 11:15:39
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/backend-console/build-stuff/models/media.js
  */
@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     signature: DataTypes.STRING,
     file_hash: DataTypes.STRING,
     mime: DataTypes.STRING,
+    status: DataTypes.STRING,
     bucket: DataTypes.STRING,
     path: DataTypes.STRING
   }, {});
