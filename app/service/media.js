@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-02-22 02:08:20
+ * @LastEditTime: 2020-02-24 13:56:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -22,6 +22,44 @@ const Task  = require('../../database/sequelize_model')('task');
 
 class MediaService extends Service {
 
+    async saveLocalMeida (file_path, bucket) {
+        if (fs.existsSync(file_path)) {
+            let filehash = await md5File(file_path);
+            let extname = path.extname(file_path);
+            let filename = extname != ''? path.basename(file_path, extname): path.basename(file_path);
+            let media = await Media.findOne({where:{file_hash:filehash}});
+    
+            if (!media) {
+                let _bucket = await this.service.bucket.getBucket(bucket);
+                if (_bucket) {
+                    let _bucket_path = this.service.bucket.fullBucketPath(_bucket);
+
+                    let signature = md5(filename+filehash);
+                    let dest = _bucket_path+signature+extname;
+                    fs.renameSync(file_path, dest);
+                    if (fs.existsSync(dest)) {
+                        let file_info = await FileType.fromFile(dest);
+                        let insert = {};
+                        insert.firstname = filename;
+                        insert.ext = extname;
+                        insert.query_params = '';
+                        insert.signature = signature;
+                        insert.mime = file_info ? file_info.mime : '';
+                        insert.bucket = bucket;
+                        insert.file_hash = filehash;
+                        insert.path = dest;
+                        let result = await Media.upsert(insert);
+                        return this.ctx.helper.JsonFormat_ok({signature});
+                    }
+                    return this.ctx.helper.JsonFormat_err('file rename fail');
+                }
+                return this.ctx.helper.JsonFormat_err('bucket not exists');
+            }
+            return this.ctx.helper.JsonFormat(0, 'media had saved');
+        }
+        return this.ctx.helper.JsonFormat_err('file not exists');
+
+    }
     async saveUploadMedia(file_upload, bucket) {
 
         try{
@@ -33,7 +71,7 @@ class MediaService extends Service {
             let extname = path.extname(file_upload.filepath); 
             let file_name = path.basename(file_upload.filename, extname);
             
-            let media = await Media.findOne({where:{file_hash:file_hash, firstname:file_name}});
+            let media = await Media.findOne({where:{file_hash:file_hash}});
             
             if (!media) {
                 // file is not exists, save it
@@ -47,7 +85,7 @@ class MediaService extends Service {
                     if(this.service.bucket.syncBucketPath(_bucket)){
 
                         // 1 copy the upload file to bucket
-                        let signature = md5(file_name);
+                        let signature = md5(file_name+file_hash);
                         let src = file_upload.filepath;
                         let dest = this.service.bucket.fullBucketPath(_bucket)+signature+extname;
                         fs.copyFileSync(src, dest);

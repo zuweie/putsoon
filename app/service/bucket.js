@@ -1,19 +1,17 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:32:50
- * @LastEditTime: 2020-02-22 00:46:50
+ * @LastEditTime: 2020-02-24 12:40:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/bucket.js
  */
 'use strict';
 const fs = require('fs');
-const fx = require('mkdir-recursive');
-const rmdirRecursiveSync = require('rmdir-recursive').sync;
 const path = require('path');
 const Op = require('sequelize').Op;
 const Service = require('egg').Service;
-const Bucket    = require('../../database/sequelize_model')('bucket');
+const Bucket  = require('../../database/sequelize_model')('bucket');
 
 class BucketService extends Service {
     
@@ -65,7 +63,8 @@ class BucketService extends Service {
     
                 let b_path = this.fullBucketPath(b);
                 try{
-                    rmdirRecursiveSync(b_path);
+                    //rmdirRecursiveSync(b_path);
+                    fs.rmdirSync(b_path, {maxRetries:5, recursive:true, });
                     if (!fs.existsSync(b_path)) {
                         delete_count++;
                         Bucket.destroy({where:{
@@ -82,8 +81,8 @@ class BucketService extends Service {
         return delete_count;
     }
 
-    getBucket(b) {
-        return Bucket.findOne({where:{
+    async getBucket(b) {
+        return await Bucket.findOne({where:{
             bucket: b
         }});
     }
@@ -96,12 +95,34 @@ class BucketService extends Service {
             try{
                 fs.mkdirSync(b_path+'/cache/', {recursive:true});
             }catch(e) {
-                console.log(e);
+                console.debug('bucket.js#syncBucketPath@e',e);
             }
         }
         
         return fs.existsSync(b_path);
     }
+
+    async syncBucketFile (b) {
+
+        let b_path = this.fullBucketPath(b);
+        
+        let files = fs.readdirSync(b_path,{withFileTypes:true});
+        try {
+            for(let i=0; i<files.length; ++i) {
+                let file = files[i];
+                if (file.isFile()) {
+                    let file_path = b_path+file.name;
+                    console.debug('bucket.js#syncBucketFile@file_path', file_path);
+                    await this.service.media.saveLocalMeida(file_path, b.bucket);
+                }
+            }
+        }catch (e) {
+            //console.debug('bucket.js#syncBucketFile@e', e);
+            return false;
+        }
+        return true;
+    }
+
 
     fullBucketPath (b) {
         let b_path = this.config.bucket.root+b.bucket+'/';

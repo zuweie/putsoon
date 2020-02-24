@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime : 2020-02-11 10:47:44
+ * @LastEditTime: 2020-02-24 11:10:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/router.js
@@ -25,11 +25,14 @@ module.exports = app => {
   const { router, controller } = app;
   //router.get('/:signature', controller.media.export_file);
   router.post('/api/v1/backend/login', controller.backend.login);
+  router.post('/api/v1/backend/login2', controller.backend.login2);
+
   router.post('/api/v1/bucket/create', jwt, controller.bucket.create_bucket);
   router.put('/api/v1/bucket/update', jwt, controller.bucket.update_bucket);
   router.get('/api/v1/bucket/show', jwt, controller.bucket.show_buckets);
   router.del('/api/v1/bucket/delete', jwt, controller.bucket.del_buckets);
-
+  router.post('/api/v1/bucket/sync', jwt, controller.bucket.sync_bucket);
+  
   router.post('/api/v1/token/upload', jwt, controller.token.gen_upload_token);
   router.get('/api/v1/token/upload', jwt, controller.token.get_upload_token);
   router.del('/api/v1/token/upload', jwt, controller.token.delete_upload_token);
