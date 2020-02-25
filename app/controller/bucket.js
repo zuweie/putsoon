@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:30:29
- * @LastEditTime: 2020-02-24 12:35:04
+ * @LastEditTime: 2020-02-25 10:53:37
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/bucket.js
@@ -116,13 +116,20 @@ class BucketController extends Controller {
     let {ctx} = this;
     let {bucket} = ctx.request.body;
     console.debug('bucket.js#sync_bucket@bucket', bucket);
-    let b = await ctx.service.bucket.getBucket(bucket);
-    console.debug('bucket.js#sync_bucket@b', b);
+    let _bucket = await ctx.service.bucket.getBucket(bucket);
 
-    if (b) {
-      let result = await ctx.service.bucket.syncBucketFile(b);
+    if (_bucket) {
+      try {
+        let result = await ctx.service.bucket.syncBucketFile(_bucket);
+
+      }catch (e) {
+        console.debug('controller#bucket.js#sync_bucket@e', e);
+        ctx.status = 400;
+        ctx.body = e;
+        return ;
+      }
       ctx.status = 200;    
-      ctx.body = result;  
+      ctx.body = ctx.helper.JsonFormat_ok();  
     }else {
       ctx.status = 404;
     }

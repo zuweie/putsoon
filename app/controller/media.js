@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-02-22 01:59:39
+ * @LastEditTime: 2020-02-24 23:14:09
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -28,14 +28,29 @@ class MediaController extends Controller {
      */
     async upload () {
         const {ctx} = this;
-        const file = ctx.request.files[0];
+        const upload_file = ctx.request.files[0];
         let _token = ctx.request.query._token;
         _token = this.service.token.explodeToken(_token);
-        //console.log(file);
-        let result = await this.service.media.saveUploadMedia(file, _token.bucket);
-        console.debug('media.js#upload@result', result);
-        ctx.status = 200;
-        ctx.body = result;
+        console.debug('controller#media.js#upload@file', upload_file);
+        let _bucket = await this.service.bucket.getBucket(_token.bucket);
+
+        if (_bucket) {
+            let result;
+            try {
+                result = await this.service.media.syncMeidafile(upload_file.filepath, _bucket, upload_file);
+                
+            }catch (e) {
+                console.debug('controller#media.js#upload@e', e);
+                ctx.status = 400;
+                ctx.body = e;
+                return;
+            }
+            ctx.status = 200;
+            ctx.body = result;
+            
+        }else{
+            ctx.status = 404;
+        }
     }
 
     /**
