@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-02-24 23:14:09
+ * @LastEditTime: 2020-02-25 17:50:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -18,11 +18,13 @@ class MediaController extends Controller {
     
 
     /**
-     * @summary upload media file
+     * @summary Upload file 
      * @consumes multipart/form-data
-     * @description combine upload token in back
+     * @description upload file and the server will new a Media record stand for this file
+     * * 1 when success, return the signature of this file
+     * * 2 expose this file, with params signature or the name of this file. see: /e/{signature}/p0/p1/p2 ...
      * @router POST /api/v1/upload
-     * @request query string *_token upload_token
+     * @request query string *_token upload token, see /api/v1/token/upload/combine
      * @request formData file *upload upload file
      * @response 200 base_response ok
      */
@@ -54,13 +56,13 @@ class MediaController extends Controller {
     }
 
     /**
-     * @summary show files
-     * @description show file
+     * @summary Show the files
+     * @description show the files
      * @router GET /api/v1/files
-     * @request header string *Authorization access_token
+     * @request header string *Authorization Bearer <access_token>
      * @request query string *bucket bucket
-     * @request query integer page=1
-     * @request query integer perpage=20
+     * @request query integer *page=1
+     * @request query integer *perpage=20
      * @response 200 base_response ok
      */
 
@@ -87,11 +89,11 @@ class MediaController extends Controller {
      }
 
     /**
-     * @summary delete file
+     * @summary Delete file
      * @consumes application/x-www-form-urlencoded
-     * @description delete file
+     * @description Delete file
      * @router DELETE /api/v1/files
-     * @request header string *Authorization access_token
+     * @request header string *Authorization Bearer <access_token>
      * @request formData integer *id[0] media id
      * @response 200 base_response ok
      */
@@ -106,8 +108,14 @@ class MediaController extends Controller {
     }
 
     /**
-     * @summary export file 
-     * @description export file
+     * @summary Expose file 
+     * @description Expose file
+     * * 1 signatrure, It can be the signature or filename of the file that you had upload or sync.
+     * * 2 p0, A donkey plugin. Install it in console by command: npm install donkey-plugin-xxx.
+     * * 3 Aafter you had install the plugin. p0 is name of plugin(without perfix 'donkey-plugin-') that you can use it handler expose file. 
+     * For example, you can scale-down to 50% of your png or jpg by donkey-plugin-slim plugin to display. 
+     * eg: http://yourhost/e/yourupload.png/slim/0.5/
+     * * 4 p1 .... pn, is the arguments for the plugin
      * @router GET /e/{signature}/{p0}/{p1}/{p2}/{p3}
      * @request path string *signature
      * @request path string p0 media handler
@@ -117,7 +125,7 @@ class MediaController extends Controller {
      * @response 200 base_response ok
      */
 
-    async export_file () {
+    async expose_file () {
         const {ctx} = this;
         let path = ctx.path;
         let params = ctx.service.media.parseParameters(path);

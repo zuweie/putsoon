@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:30:29
- * @LastEditTime: 2020-02-25 10:53:37
+ * @LastEditTime: 2020-02-25 11:19:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/bucket.js
@@ -15,14 +15,14 @@ const Controller = require('egg').Controller;
  */
 class BucketController extends Controller {
   /**
-   * @summary 创建 Bucket
+   * @summary Create Bucket
    * @consumes application/x-www-form-urlencoded
-   * @description 创建 bucket
+   * @description Create Bucket
    * @router POST /api/v1/bucket/create
    * @request header string *Authorization Bearer <access_token>
-   * @request formData string *bucket Bucket的名字
-   * @request formData integer *is_private 是否私有：1为私有Bucket，0为公有Bucket
-   * @request formData string describe Bucket的描述
+   * @request formData string *bucket name of Bucket
+   * @request formData integer *is_private 1 for private, 0 for public
+   * @request formData string describe description of Bucket
    * @response 200 base_response ok
    */
   async create_bucket () {
@@ -36,12 +36,12 @@ class BucketController extends Controller {
   }
 
   /**
-   * @summary 显示当前的 Bucket
-   * @description 显示当前的 Bucket
+   * @summary Show Bucket
+   * @description Show Bucket
    * @router GET /api/v1/bucket/show
    * @request header string *Authorization Bearer <access_token>
-   * @request query integer *page 页数
-   * @request query integer *perpage 每页数量
+   * @request query integer *page page number
+   * @request query integer *perpage item number of perpage
    * @response 200 base_response ok
    */
   async show_buckets () {
@@ -54,8 +54,8 @@ class BucketController extends Controller {
   }
 
   /**
-   * @summary update bucket (弃用)
-   * @description update bucket 
+   * @summary Update bucket (Abandoned)
+   * @description Update bucket 
    * @router PUT /api/v1/bucket/update
    * @request header string *Authorization Bearer <access_token>
    * @request query integer *id bucket id
@@ -66,6 +66,7 @@ class BucketController extends Controller {
    */
   async update_bucket() {
 
+    this.status = 400;
     this.ctx.body = this.ctx.helper.JsonFormat_err('')
     return;
     
@@ -84,13 +85,13 @@ class BucketController extends Controller {
    }
 
   /**
-   * @summary delete buckets
+   * @summary Delete Buckets
    * @consumes application/x-www-form-urlencoded
-   * @description delete buckets
+   * @description Delete Buckets
    * @router DELETE /api/v1/bucket/delete
    * @request header string *Authorization Bearer <access_token>
    * @request formData integer *id[0] bucket id
-   * @request formData integer *id[1] bucket id
+   * @request formData integer id[1] bucket id
    * @response 200 base_response ok
    */
   async del_buckets () {
@@ -104,9 +105,9 @@ class BucketController extends Controller {
   }
 
   /**
-   * @summary sync bucket
+   * @summary Sync Bucket
    * @consumes application/x-www-form-urlencoded
-   * @description sync bucket, save the unrecored file to database
+   * @description You can upload some big files to the bucket folder by FTP, then Sync Bucket can create the new meida record for those new file.
    * @router POST /api/v1/bucket/sync
    * @request header string *Authorization Bearer <access_token>
    * @request formData string *bucket bucket to sync

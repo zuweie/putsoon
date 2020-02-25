@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-02-07 07:37:10
- * @LastEditTime : 2020-02-07 09:43:48
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-02-25 17:38:04
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/token.js
  */
@@ -16,10 +16,10 @@ const Controller = require('egg').Controller;
 class TokenController extends Controller {
     
   /**
-   * @summary new upload token
-   * @description new upload token
+   * @summary Create ak(appKey) & sk(secretKey) for build upload token.
+   * @description Create ak(appKey) & sk(secretKey) for build upload token.
    * @router POST /api/v1/token/upload
-   * @request header string *Authorization access_token
+   * @request header string *Authorization Bearer <access_token>
    * @response 200 base_response ok
    */
     async gen_upload_token () {
@@ -30,10 +30,10 @@ class TokenController extends Controller {
     }
 
     /**
-     * @summary get upload token
-     * @description get upload token
+     * @summary Show your ak(appKey) & sk(secretKey)
+     * @description Show your ak(appKey) & sk(secretKey)
      * @router GET /api/v1/token/upload
-     * @request header string *Authorization access_token
+     * @request header string *Authorization Bearer <access_token>
      * @response 200 base_response ok
      */
 
@@ -45,9 +45,9 @@ class TokenController extends Controller {
      }
 
      /**
-      * @summary delete upload token
+      * @summary Delete you ak(appKey) & sk(secretKey)
       * @consumes application/x-www-form-urlencoded
-      * @description delete upload token
+      * @description Delete you ak(appKey) & sk(secretKey)
       * @router DELETE /api/v1/token/upload
       * @request header string *Authorization access_token
       * @request formData string *id[] upload token id
@@ -64,7 +64,7 @@ class TokenController extends Controller {
       /**
        * @summary verify upload token
        * @consumes application/x-www-form-urlencoded
-       * @description verify upload token
+       * @description verify upload token, this Api Check whether the token is correct
        * @router POST /api/v1/token/upload/verify
        * @request formData string *upload_token upload_token
        * @response 200 base_response ok
@@ -77,9 +77,12 @@ class TokenController extends Controller {
        }
 
        /**
-        * @summary combine upload token
+        * @summary Combine upload token with ak & sk
         * @consumes application/x-www-form-urlencoded
-        * @description combine upload token in back
+        * @description Combine upload token with ak & sk
+        * * 1 upload token : base64(ak+'&&'+md5(timestamp+'&&'+sk)+'&&'+timestamp+'&&'+bucket)
+        * * 2 timestamp is millisecond
+        * * 3 usually, upload token should be calculated in server end.
         * @router POST /api/v1/token/upload/combine
         * @request formData string *ak ak
         * @request formData string *sk sk

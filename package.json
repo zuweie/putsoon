@@ -52,7 +52,7 @@
     "lint": "eslint .",
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
-    "install": "./backend-console/index.js install"
+    "setup": "./backend-console/index.js install"
   },
   "ci": {
     "version": "10"

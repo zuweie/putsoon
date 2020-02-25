@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:50:44
- * @LastEditTime : 2020-02-08 11:40:26
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-02-25 17:29:13
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
  */
@@ -69,10 +69,8 @@ class TokenService extends Service {
                 ak: ak
             }});
             if (_token) {
-                if (sk_hash == md5(timestamp +'$$'+_token.sk)) {
+                if (sk_hash == md5(timestamp +'&&'+_token.sk)) {
                     let difftime =  Math.round((Date.now() - timestamp)/1000);
-                    //console.log('difftime', difftime);
-                    //console.log('expireIn', _token.expireIn);
                     return difftime < _token.expireIn;
                 }
             }
@@ -82,15 +80,15 @@ class TokenService extends Service {
 
     explodeToken(token) {
         let decode = Buffer.from(token,'base64').toString();
-        let exp = decode.split('$$');
+        let exp = decode.split('&&');
         if (exp.length == 0) return false;
         return {ak:exp[0], sk_hash:exp[1], timestamp:exp[2], bucket: exp[3]};
     }
 
     implodeToken(ak,sk,bucket) {
         let timestamp = Date.now();
-        let encode = md5(''+timestamp + '$$' + sk);
-        let token = ak+'$$'+encode+'$$'+timestamp+'$$'+bucket;
+        let encode = md5(''+timestamp + '&&' + sk);
+        let token = ak+'&&'+encode+'&&'+timestamp+'&&'+bucket;
         return Buffer.from(token).toString('base64');
     }
 }
