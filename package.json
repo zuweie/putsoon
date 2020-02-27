@@ -6,6 +6,7 @@
     "declarations": true
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "bcrypt": "^3.0.8",
     "colors": "^1.4.0",
     "egg": "^2.15.1",
@@ -52,7 +53,11 @@
     "lint": "eslint .",
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
-    "setup": "./backend-console/index.js install"
+    "setup": "./backend-console/index.js install",
+    "login": "./backend-console/index.js login",
+    "bucket:create": "./backend-console/index.js create:bucket",
+    "bucket:show": "./backend-console/index.js show:bucket",
+    "bucket:delete": "./backend-console/index.js delete:bucket"
   },
   "ci": {
     "version": "10"

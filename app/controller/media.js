@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-02-25 17:50:40
+ * @LastEditTime: 2020-02-27 07:47:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -24,22 +24,40 @@ class MediaController extends Controller {
      * * 1 when success, return the signature of this file
      * * 2 expose this file, with params signature or the name of this file. see: /e/{signature}/p0/p1/p2 ...
      * @router POST /api/v1/upload
-     * @request query string *_token upload token, see /api/v1/token/upload/combine
-     * @request formData file *upload upload file
+     * @request query string _token upload token, IF the upload_guard is on, the api need upload token, see /api/v1/token/upload/combine     
+     * @request query string bucket IF the upload_guard is off, this api dose`t need upload token, but you must tall api which bucket you want to upload.
+     * @request formData file *upload[0] upload file
+     * @request formData file *upload[1] upload file
      * @response 200 base_response ok
      */
     async upload () {
         const {ctx} = this;
-        const upload_file = ctx.request.files[0];
-        let _token = ctx.request.query._token;
-        _token = this.service.token.explodeToken(_token);
-        console.debug('controller#media.js#upload@file', upload_file);
-        let _bucket = await this.service.bucket.getBucket(_token.bucket);
+        const upload_files = ctx.request.files;
+        let bucket = '';
+        
+        if (ctx.app.config.bucket.upload_guard) {
+            _token = this.service.token.explodeToken(ctx.request.query._token);
+            bucket = _token.bucket;
+        }else{
+            bucket = ctx.request.query.bucket;
+        }
 
+        let _bucket = await ctx.service.bucket.getBucket(bucket);
+        //console.debug('media.js#upload@bucket', _bucket);
+        //console.debug('media.js#upload@upload_files', upload_files);
         if (_bucket) {
             let result;
             try {
-                result = await this.service.media.syncMeidafile(upload_file.filepath, _bucket, upload_file);
+                
+                if (upload_files.length == 1) {
+                    result = await this.service.media.syncMeidafile(upload_file.filepath, _bucket, upload_file);
+                }else {
+                    result = [];
+                    for (let ufile of upload_files) {
+                        let res = await this.service.media.syncMeidafile(ufile.filepath, _bucket, ufile);
+                        result.push(res);
+                    }
+                }
                 
             }catch (e) {
                 console.debug('controller#media.js#upload@e', e);
@@ -112,16 +130,16 @@ class MediaController extends Controller {
      * @description Expose file
      * * 1 signatrure, It can be the signature or filename of the file that you had upload or sync.
      * * 2 p0, A donkey plugin. Install it in console by command: npm install donkey-plugin-xxx.
-     * * 3 Aafter you had install the plugin. p0 is name of plugin(without perfix 'donkey-plugin-') that you can use it handler expose file. 
-     * For example, you can scale-down to 50% of your png or jpg by donkey-plugin-slim plugin to display. 
+     * * 3 Aafter you had install the plugin. p0 is name of plugin(without perfix 'donkey-plugin-') that can be use to process expose file. 
+     * For example, We can scale-down to 50% of your png or jpg by donkey-plugin-slim plugin to display. 
      * eg: http://yourhost/e/yourupload.png/slim/0.5/
      * * 4 p1 .... pn, is the arguments for the plugin
      * @router GET /e/{signature}/{p0}/{p1}/{p2}/{p3}
      * @request path string *signature
-     * @request path string p0 media handler
-     * @request path string p1 media handler parameter 1
-     * @request path string p2 media handler parameter 2
-     * @request path string p3 media handler parameter 3
+     * @request path string p0 media plugin
+     * @request path string p1 media plugin parameter 1
+     * @request path string p2 media plugin parameter 2
+     * @request path string p3 media plugin parameter 3
      * @response 200 base_response ok
      */
 

@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 18:20:05
- * @LastEditTime : 2020-02-03 16:50:24
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-02-27 09:01:11
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/libs/install.js
  */
@@ -47,36 +47,29 @@ module.exports = async function () {
         }
 
         let question = [
-            {
-                type: 'input',
-                name: 'nickname',
-                message: "your nickname? "
-            },
+           
             {
                 type: 'input',
                 name: 'login',
-                message: "your login account? ",
+                message: "your login account (defalut admin) ? ",
             },
             {
                 type: 'input',
                 name: 'password',
-                message: "your login password? ",
-            },
-            {
-                type: 'input',
-                name: 'email',
-                message: "your email? ",
+                message: "your login password (default 123456) ? ",
             },
         ];
 
-        let { nickname, login, password, email } = await inquirer.prompt(question);
-
+        let {nickname, login, password, email} = await inquirer.prompt(question);
+        
         // 处理一下把$,换成 \$.
-        nickname = replace_money_symbol(nickname);
-        login = replace_money_symbol(login);
-        password = replace_money_symbol(bcrypt_password(password));
-        email = replace_money_symbol(email);
+        nickname = nickname? replace_money_symbol(nickname): 'Donkey';
+        login = login? replace_money_symbol(login): 'admin';
+        password = password? replace_money_symbol(bcrypt_password(password)) : '123456';
+        email = email? replace_money_symbol(email): 'admin@admin.com';
 
+        //console.debug('install.js#install@install_info', nickname, login, password, email);
+        //return 0;
         /**
          * shell sequelize-cli
          */

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:30:29
- * @LastEditTime: 2020-02-25 11:19:49
+ * @LastEditTime: 2020-02-27 11:56:46
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/bucket.js
@@ -97,7 +97,8 @@ class BucketController extends Controller {
   async del_buckets () {
     let {ctx} = this;
     let {payload} = ctx;
-    let {id} = ctx.request.body;
+    let {id, } = ctx.request.body;
+    
     let del = await ctx.service.bucket.deleteBuckets(id, payload.user_id);
     ctx.status = 200;
     ctx.body = ctx.helper.JsonFormat_ok(del);
