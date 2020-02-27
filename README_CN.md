@@ -8,5 +8,11 @@
 - git clone 或者[下载本项目](https://github.com/zuweie/donkey/archive/master.zip)
 - cd donkey
 - npm install --production
-- npm run install
-- npm start
+
+### 开始使用
+- 安装并配置数据库
+bash 
+```
+  npm run setup
+```
+- 输入登录账号和密码，默认值为 admin/123456
