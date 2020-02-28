@@ -59,7 +59,8 @@
     "login": "./backend-console/index.js login",
     "bucket:create": "./backend-console/index.js create:bucket",
     "bucket:show": "./backend-console/index.js show:bucket",
-    "bucket:delete": "./backend-console/index.js delete:bucket"
+    "bucket:delete": "./backend-console/index.js delete:bucket",
+    "bucket:sync": "./backend-console/index.js sync:bucket"
   },
   "ci": {
     "version": "10"

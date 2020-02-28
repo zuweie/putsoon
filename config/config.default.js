@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-02-27 07:28:40
+ * @LastEditTime: 2020-02-29 01:05:28
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/config/config.default.js
@@ -19,7 +19,7 @@ module.exports = appInfo => {
    * @type {Egg.EggAppConfig}
    **/
   const config = exports = {};
-
+  //console.debug('config.default.js@appInfo', appInfo);
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1580536447978_5276';
 
@@ -60,7 +60,8 @@ module.exports = appInfo => {
   };
 
   config.bucket = {
-    root: __dirname+'/../media_source/',
+    //root: __dirname+'/../media_source/',
+    root:appInfo.baseDir+'/media_source/',
     upload_guard : false
   }
   

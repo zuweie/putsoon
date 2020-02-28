@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-02-25 10:56:50
+ * @LastEditTime: 2020-02-29 00:07:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -280,7 +280,7 @@ class MediaService extends Service {
 
     async getMediaFile (signature) {
 
-        return Media.findOne({where:{
+        return await Media.findOne({where:{
             [Op.or]: [{signature: signature}, {firstname: signature}]
         }});
     }

@@ -2,7 +2,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-09 15:48:15
- * @LastEditTime: 2020-02-28 18:54:20
+ * @LastEditTime: 2020-02-29 00:46:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/index.js
@@ -45,7 +45,7 @@ try {
         const showBucket = require('./showbucket');
         showBucket();
     }else if (action == 'delete:bucket') {
-        console.log(colors.yellow('usage: bucket:delete <bucket id(required)>'))
+        console.log(colors.yellow('usage: bucket:delete <bucket id or name (required)>'));
         let bucket_id = process.argv[3];
         if (bucket_id) {
             const deleteBucket = require('./deletebucket');
@@ -53,7 +53,15 @@ try {
         }else {
             console.log(colors.red('bucket id required'));
         } 
-        
+    }else if (action == 'sync:bucket') {
+        console.log(colors.yellow('usage: bucket:sync <bucket name <required>'));
+        let bucket = process.argv[3];
+        if (bucket) {
+            const syncBucket = require('./syncbucket');
+            syncBucket(bucket);
+        }else {
+            console.log(colors.red('bucket name required'));
+        }
     }
 }catch (err) {
     console.log(colors.red(err));

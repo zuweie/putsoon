@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:32:50
- * @LastEditTime: 2020-02-25 10:54:12
+ * @LastEditTime: 2020-02-29 00:56:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/bucket.js
@@ -21,8 +21,8 @@ class BucketService extends Service {
          */
         Bucket.upsert({bucket: bucket, description: desc, user_id: user_id, is_private: is_private},{returning:true});
         let _bucket = await this.getBucket(bucket);
-        if (_bucket) {
-            return this.syncBucketPath(_bucket);
+        if (_bucket && this.syncBucketPath(_bucket)) {
+            return {name: bucket, bucket_dir: this.fullBucketDir(_bucket)};
         }else {
             return false;
         }
@@ -49,7 +49,9 @@ class BucketService extends Service {
         let delete_count = 0;
         console.debug('bucket.js#deleteBuckets@ids', ids);
         for (let i=0; i<ids.length; ++i) {
-            let b = await Bucket.findByPk(ids[i]);
+            let b = await Bucket.findOne({where:{
+                [Op.or]: [{id: ids[i]}, {bucket: ids[i]}]
+            }});
             console.debug('bucket.js#deleteBucket@b', b);
             // TODO delete all the media first
             if (b) {
@@ -68,12 +70,12 @@ class BucketService extends Service {
                     if (!fs.existsSync(b_path)) {
                         delete_count++;
                         Bucket.destroy({where:{
-                            id:ids[i],
+                            id:b.id,
                             user_id: user_id,
                         }});
                     }
                 }catch(e) {
-                    console.log(e);
+                    console.log('bucket.js#deleteBuckets@e', e);
                 }
             }
         }
@@ -81,8 +83,8 @@ class BucketService extends Service {
         return delete_count;
     }
 
-    async getBucket(b) {
-        return await Bucket.findOne({where:{
+    getBucket(b) {
+        return Bucket.findOne({where:{
             bucket: b
         }});
     }
