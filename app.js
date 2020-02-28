@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-05 10:28:31
- * @LastEditTime : 2020-02-05 11:21:16
+ * @LastEditTime: 2020-02-28 17:48:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app.js
@@ -9,7 +9,13 @@
 
 let Tasklistener = [];
 const process = require('process');
+const fs = require('fs');
+
 module.exports = (app) => {
+
+    //console.info('app.js@process.env.NODE_ENV', process.env.NODE_ENV);
+    //console.debug('app.js@app', app.config);
+
     app.passport.verify(async (ctx, user) => {
         ctx.payload = user.payload;
         return user.payload;
@@ -42,7 +48,12 @@ module.exports = (app) => {
             l.onTaskStatus(key);
         })
     });
-
+    
+    app.messenger.on('_port', ()=>{
+        let fd = fs.openSync('./.port', 'w+');
+        fs.writeSync(fd, app.server.address().port);
+    });
+   
     app.addTasklistener = (l) =>{
         console.debug('pid '+process.pid+' add listener!');
         Tasklistener.push(l);
@@ -63,4 +74,5 @@ module.exports = (app) => {
             l.onTaskStatus(key);
         });
     }
+    
 }

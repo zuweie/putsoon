@@ -1,12 +1,12 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 11:22:42
- * @LastEditTime: 2020-02-15 14:39:08
+ * @LastEditTime: 2020-02-28 17:08:07
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/agent.js
  */
-
+const fs = require('fs');
 const Task = require('./database/sequelize_model')('task');
 module.exports = agent => {
 
@@ -38,6 +38,7 @@ module.exports = agent => {
             }
         }
     });
-
-    // 
+    agent.messenger.on('egg-ready', () => {
+        agent.messenger.sendRandom('_port');
+    });
 }

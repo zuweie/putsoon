@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 18:20:05
- * @LastEditTime: 2020-02-27 09:01:11
+ * @LastEditTime: 2020-02-28 18:07:07
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/libs/install.js
@@ -25,19 +25,7 @@ function bcrypt_password(plaint_pass) {
 function replace_money_symbol (txt) {
     return txt.replace(/\$/g, '\\$');
 }
-function is_module_exists (m) {
-    console.log(colors.gray('checking module '+m+' ....'));
-    let result = shell.exec('ls -all '+process.cwd()+'/node_modules/ | grep -v grep | grep '+m).stdout;
-    return result != '';
-}
-function install_module(m) {
-    if (!is_module_exists(m)) {
-        console.log(colors.gray('install '+ m));
-        shell.exec('npm install --save '+m);
-    }else{
-        console.log(m +' exists ...');
-    }
-}
+
 module.exports = async function () {
     
         console.log(colors.green('checking the locked file...'));
@@ -65,7 +53,7 @@ module.exports = async function () {
         // 处理一下把$,换成 \$.
         nickname = nickname? replace_money_symbol(nickname): 'Donkey';
         login = login? replace_money_symbol(login): 'admin';
-        password = password? replace_money_symbol(bcrypt_password(password)) : '123456';
+        password = password? replace_money_symbol(bcrypt_password(password)) : replace_money_symbol( bcrypt_password('123456') );
         email = email? replace_money_symbol(email): 'admin@admin.com';
 
         //console.debug('install.js#install@install_info', nickname, login, password, email);
@@ -88,7 +76,7 @@ module.exports = async function () {
         // 1 copy migration
         shell.cp('-r', __dirname+'/build-stuff/migrations/*.js', process.cwd()+'/database/migrations/');
         // 2 run migration
-        shell.exec('npx sequelize-cli db:migrate');
+        //shell.exec('npx sequelize-cli db:migrate');
 
         // 3 create a admin sheed
 
@@ -105,9 +93,10 @@ module.exports = async function () {
         // 4 copy the seeder file.
         shell.rm('-rf', process.cwd()+'/database/seeders/*');
         shell.cp('-r', __dirname+'/build-stuff/seeders/*.js', process.cwd()+'/database/seeders/');
+        
         // 5 seeding...
-        console.log(colors.green('seeding ...'));
-        shell.exec('npx sequelize-cli db:seed:all');
+        //console.log(colors.green('seeding ...'));
+        //shell.exec('npx sequelize-cli db:seed:all');
         
         // 6 copy the model
         shell.cp('-r', __dirname+'/build-stuff/models/*.js', process.cwd()+'/database/models')

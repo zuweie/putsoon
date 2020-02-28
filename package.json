@@ -54,6 +54,8 @@
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
     "setup": "./backend-console/index.js install",
+    "seeding:pro": "NODE_ENV=production ./backend-console/index.js seeding",
+    "seeding:dev": "NODE_ENV=development ./backend-console/index.js seeding",
     "login": "./backend-console/index.js login",
     "bucket:create": "./backend-console/index.js create:bucket",
     "bucket:show": "./backend-console/index.js show:bucket",
