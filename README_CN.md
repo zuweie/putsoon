@@ -40,7 +40,7 @@ npm run dev
 npm run dev -- --port=9001
 ```
 
-### 开始使用
+### 快速开始
 - 由于时间关系，本人懒得做一个UI的后台，所以只实现命令行登录操作
 - 登录账号与密码默认值为 admin / 123456
 ```
@@ -52,3 +52,4 @@ npm run bucket:create <bucket name (required)>
 ```
 - 在建立了 bucket 后便可开始上传文件了
 - 浏览器上打开地址: http://localhost:7001/swagger-ui.html
+- 选择文件，以及指定你要上传bucket
