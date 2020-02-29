@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-02-29 00:07:30
+ * @LastEditTime: 2020-02-29 09:50:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -25,7 +25,7 @@ class MediaService extends Service {
     /**
      * _xx 下划线开头的变量，意味这个变量已经存在于内存，不用再从数据库load，否则它只是一个字符串。
      */
-    async syncMeidafile (file_path, _bucket, save_info = null, del_original = true) {
+    async syncMediafile (file_path, _bucket, save_info = null, del_original = true) {
         console.debug('media.js#syncMedia@file_path', file_path);
         
         if (fs.existsSync(file_path)) {
@@ -45,7 +45,7 @@ class MediaService extends Service {
             }
             
             console.debug('media.js#syncMediafile@extname', extname);
-            console.debug('media.js#syncMeidafile@filename', filename);
+            console.debug('media.js#syncMediafile@filename', filename);
             let medias = await Media.findAll({where:{file_hash:filehash, bucket:_bucket.bucket}});
 
             //console.debug('media.js#syncMediafile@medias', medias);

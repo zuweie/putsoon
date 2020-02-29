@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-02-27 07:47:43
+ * @LastEditTime: 2020-02-29 09:48:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -27,7 +27,6 @@ class MediaController extends Controller {
      * @request query string _token upload token, IF the upload_guard is on, the api need upload token, see /api/v1/token/upload/combine     
      * @request query string bucket IF the upload_guard is off, this api dose`t need upload token, but you must tall api which bucket you want to upload.
      * @request formData file *upload[0] upload file
-     * @request formData file *upload[1] upload file
      * @response 200 base_response ok
      */
     async upload () {
@@ -50,11 +49,11 @@ class MediaController extends Controller {
             try {
                 
                 if (upload_files.length == 1) {
-                    result = await this.service.media.syncMeidafile(upload_file.filepath, _bucket, upload_file);
+                    result = await this.service.media.syncMediafile(upload_files[0].filepath, _bucket, upload_files[0]);
                 }else {
                     result = [];
                     for (let ufile of upload_files) {
-                        let res = await this.service.media.syncMeidafile(ufile.filepath, _bucket, ufile);
+                        let res = await this.service.media.syncMediafile(ufile.filepath, _bucket, ufile);
                         result.push(res);
                     }
                 }

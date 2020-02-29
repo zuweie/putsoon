@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:32:50
- * @LastEditTime: 2020-02-29 00:56:18
+ * @LastEditTime: 2020-02-29 10:07:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/bucket.js
@@ -91,7 +91,7 @@ class BucketService extends Service {
 
     syncBucketPath (b) {
 
-        let b_path = this.config.bucket.root+b.bucket;
+        let b_path = this.fullBucketDir(b);
 
         if (!fs.existsSync(b_path)){
             try{
@@ -123,14 +123,15 @@ class BucketService extends Service {
             if (file.isFile() && !bucketfiles.has(file.name)) {
                 let file_path = b_path+file.name;
                 console.debug('bucket.js#syncBucketFile@file_path', file_path);
-                await this.service.media.syncMeidafile(file_path, _bucket);
+                await this.service.media.syncMediafile(file_path, _bucket);
             }
         }
     }
 
 
     fullBucketDir (b) {
-        let b_path = this.config.bucket.root+b.bucket+'/';
+        let env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
+        let b_path = this.config.bucket.root+b.bucket+'-'+env+'/';
         return b_path;
     }
 }
