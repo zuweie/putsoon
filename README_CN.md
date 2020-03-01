@@ -25,24 +25,25 @@ npm run seeding:pro
 /* 开发环境 */
 npm run seeding:dev
 ```
-- 配置好账户密码后，启动服务，默认端口是7001，需要换其他端口使用参数例如， -- --port=9001
+- 配置好账户密码后，服务器启动，启动服务器可以分为调试环境，或者生产环境。默认端口是7001，如需更换其他端口请使用参数 -- --port=<port number>，例如：-- --port=9001
+  
 ```
 /* 启动生产环境，默认端口 7001 */
 npm run start 
 
-/*  使用 9001 端口启动 */
+/*  启动生产环境，使用 9001 端口启动 */
 npm run start -- --port=9001
 
-/* 启动开发环境，默认端口 7001 */
+/* 启动调试环境，默认端口 7001 */
 npm run dev 
 
-/* 使用 9001 端口启动 */
+/* 启动调试环境，使用 9001 端口启动 */
 npm run dev -- --port=9001
 ```
 
-### 开始使用
+### 快速开始
 - 由于时间关系，本人懒得做一个UI的后台，所以只实现命令行登录操作
-- 登录账号与密码默认值为 admin / 123456
+- 登录后台，登录账号与密码默认值为 admin / 123456
 ```
 npm run login <account> <password>
 ```
@@ -50,5 +51,3 @@ npm run login <account> <password>
 ```
 npm run bucket:create <bucket name (required)>
 ```
-- 在建立了 bucket 后便可开始上传文件了
-- 浏览器上打开地址: http://localhost:7001/swagger-ui.html
