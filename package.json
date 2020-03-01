@@ -57,6 +57,7 @@
     "seeding:pro": "NODE_ENV=production ./backend-console/index.js seeding",
     "seeding:dev": "NODE_ENV=development ./backend-console/index.js seeding",
     "login": "./backend-console/index.js login",
+    "upload": "./backend-console/index.js upload:media",
     "bucket:create": "./backend-console/index.js create:bucket",
     "bucket:show": "./backend-console/index.js show:bucket",
     "bucket:delete": "./backend-console/index.js delete:bucket",

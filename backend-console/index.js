@@ -2,7 +2,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-09 15:48:15
- * @LastEditTime: 2020-02-29 00:46:02
+ * @LastEditTime: 2020-03-01 13:34:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/index.js
@@ -54,13 +54,22 @@ try {
             console.log(colors.red('bucket id required'));
         } 
     }else if (action == 'sync:bucket') {
-        console.log(colors.yellow('usage: bucket:sync <bucket name <required>'));
+        console.log(colors.yellow('usage: bucket:sync <bucket name (required)>'));
         let bucket = process.argv[3];
         if (bucket) {
             const syncBucket = require('./syncbucket');
             syncBucket(bucket);
         }else {
             console.log(colors.red('bucket name required'));
+        }
+    }else if (action == "upload:media") {
+        console.log(colors.yellow('usage: bucket:upload <bucket name (required)> <upload file (required)>'));
+        let bucket = process.argv[3];
+        if (bucket) {
+            const uploadmedia = require('./uploadmedia');
+            uploadmedia(bucket, process.argv[4],process.argv[5],process.argv[6],process.argv[7],process.argv[8],process.argv[9],process.argv[10],process.argv[11],process.argv[12],process.argv[13],);
+        }else {
+            console.log(colors.red('bucket or upload required ~ '));
         }
     }
 }catch (err) {

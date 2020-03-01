@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-02-29 09:48:23
+ * @LastEditTime: 2020-03-01 11:43:05
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -32,6 +32,7 @@ class MediaController extends Controller {
     async upload () {
         const {ctx} = this;
         const upload_files = ctx.request.files;
+        
         let bucket = '';
         
         if (ctx.app.config.bucket.upload_guard) {
@@ -43,19 +44,23 @@ class MediaController extends Controller {
 
         let _bucket = await ctx.service.bucket.getBucket(bucket);
         //console.debug('media.js#upload@bucket', _bucket);
-        //console.debug('media.js#upload@upload_files', upload_files);
+        console.debug('media.js#upload@upload_files', upload_files);
+        console.debug('media.js#upload@body', ctx.request.body);
         if (_bucket) {
             let result;
             try {
                 
                 if (upload_files.length == 1) {
                     result = await this.service.media.syncMediafile(upload_files[0].filepath, _bucket, upload_files[0]);
-                }else {
+                    //console.debug('controller#media.js#upload@result', result);
+                }else if (upload_files.length > 1){
                     result = [];
                     for (let ufile of upload_files) {
                         let res = await this.service.media.syncMediafile(ufile.filepath, _bucket, ufile);
                         result.push(res);
                     }
+                }else{
+                    throw 'upload file 0';
                 }
                 
             }catch (e) {
