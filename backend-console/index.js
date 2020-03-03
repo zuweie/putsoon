@@ -2,7 +2,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-09 15:48:15
- * @LastEditTime: 2020-03-01 13:34:40
+ * @LastEditTime: 2020-03-01 16:38:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/index.js
@@ -63,7 +63,7 @@ try {
             console.log(colors.red('bucket name required'));
         }
     }else if (action == "upload:media") {
-        console.log(colors.yellow('usage: bucket:upload <bucket name (required)> <upload file (required)>'));
+        console.log(colors.yellow('usage: upload <bucket name (required)> <file1 (required)> <file3> <file4>...'));
         let bucket = process.argv[3];
         if (bucket) {
             const uploadmedia = require('./uploadmedia');

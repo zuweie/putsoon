@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-02-29 09:50:45
+ * @LastEditTime: 2020-03-03 11:25:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -300,13 +300,20 @@ class MediaService extends Service {
         return new Promise( async (resolve, reject) => {
 
             let taskey = context.service.task.calKey(_media, _handler, args);
-            let task = await context.service.task.findTask(taskey);
+            let _task = await context.service.task.findTask(taskey);
             let timer = -1;
             let tasklistener = null;
             /* if no task try to post a new one */
-            if (!task) {
+            if (!_task || _task.try < this.app.config.task.try_limit ) {
                 try{
-                    let res = await context.service.task.postTask(_media, _handler, args);
+                    let res = false;
+
+                    if (!_task) {
+                        res = await context.service.task.postTask(_media, _handler, args);
+
+                    }else{
+                        res = await context.service.task.resetTaskStatus(_task);
+                    }
                     if (res) {
 
                         // add listener here ?
@@ -321,15 +328,16 @@ class MediaService extends Service {
                                 resolve({ file: on_task.dest, mime: info.mime });
                                 console.debug('media.js#tasklistener#onTaskStatus@task.status == done@task.dest & info', on_task.dest, info);
                                 if (timer != -1){
-                                    console.debug('media.js#tasklistener@clearTimeout !');
+                                    console.debug('media.js#tasklistener@clearTimeout', timer);
                                     clearTimeout(timer);
                                 }
                             } else if (on_task.status == 'err') {
-                                reject(on_task.errmsg);
                                 if (timer != -1) {
-                                    console.debug('media.js#tasklistener@clearTimeout !');
+                                    console.debug('media.js#tasklistener@clearTimeout', timer);
                                     clearTimeout(timer);
                                 }
+                                reject(this.service.task.getLastErrmsg(on_task));
+                                
                             }
                             context.app.rmTasklistener(tasklistener);
                         };
@@ -348,15 +356,15 @@ class MediaService extends Service {
                 }
             }
 
-            if (!task) {
-                task = await context.service.task.findTask(taskey);
+            if (!_task) {
+                _task = await context.service.task.findTask(taskey);
             }
 
-            if (!task) {
+            if (!_task) {
                 reject('task fail');
             }
 
-            if ( (task.status == 'processing') || (task.status == 'idle') ) {
+            if ( (_task.status == 'processing') || (_task.status == 'idle') ) {
                 if (!sync)
                     reject('task is processing');
                 else {
@@ -365,13 +373,13 @@ class MediaService extends Service {
                     console.debug('media.js#TryToGetMediafile@setTimeout');
                     timer = setTimeout( async ()=>{
                         // time out checking the task;
-                        task = await context.service.task.findTask(taskey);
-                        console.debug('media.js#Timer@task.status', task.status);
-                        if (task.status == 'done') {
-                            let info = context.service.task.fileInfo2Obj(task.file_info);
-                            resolve({file:task.dest, mime:info.mime});
-                        }else if (task.status == 'err') {
-                            reject(task.errmsg);
+                        _task = await context.service.task.findTask(taskey);
+                        console.debug('media.js#Timer@task.status', _task.status);
+                        if (_task.status == 'done') {
+                            let info = context.service.task.fileInfo2Obj(_task.file_info);
+                            resolve({file:_task.dest, mime:info.mime});
+                        }else if (_task.status == 'err') {
+                            reject(_task.errmsg);
                         }else{
                             reject('task time out');
                         }
@@ -380,12 +388,13 @@ class MediaService extends Service {
                         }
                     }, 30*1000);
                 }
-            }else if (task.status == 'done') {
-                let info = context.service.task.fileInfo2Obj(task.file_info);
-                console.debug('media.js#TryToGetCopy@task.status == done@task.dest & info', task.dest, info);
-                resolve({file:task.dest, mime:info.mime});
-            }else {
-                reject(task.errmsg);
+            }else if (_task.status == 'done') {
+                let info = context.service.task.fileInfo2Obj(_task.file_info);
+                console.debug('media.js#TryToGetCopy@task.status == done@task.dest & info', _task.dest, info);
+                resolve({file:_task.dest, mime:info.mime});
+            } else {
+                console.debug('media.js#TryToGetCopy@task.status == err & task.try > try_limit');
+                reject(this.service.task.getLastErrmsg(_task));
             }
         });
     } 
@@ -437,11 +446,13 @@ class MediaService extends Service {
     }
 
     mkSaveDir(media, handler, args=[]) {
+        
         let dir = this.calSaveDir(media, handler, args);
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, {recursive: true});
         }
         return dir;
+        
     }
 }
 

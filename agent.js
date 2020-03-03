@@ -1,13 +1,15 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 11:22:42
- * @LastEditTime: 2020-02-28 17:08:07
+ * @LastEditTime: 2020-03-03 12:06:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/agent.js
  */
 const fs = require('fs');
 const Task = require('./database/sequelize_model')('task');
+const shell = require('shelljs');
+
 module.exports = agent => {
 
     // processing the task.
@@ -39,6 +41,11 @@ module.exports = agent => {
         }
     });
     agent.messenger.on('egg-ready', () => {
+        // clear all the tmp file folder
+        let bucket_tmp = agent.config.bucket.root+'.tmp/*';
+        console.debug('agent.js#egg-ready@bucket_tmp', bucket_tmp);
+        shell.rm('-rf', bucket_tmp);
+        
         agent.messenger.sendRandom('_port');
     });
 }
