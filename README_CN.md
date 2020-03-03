@@ -51,3 +51,17 @@ npm run login <account> <password>
 ```
 npm run bucket:create <bucket name (required)>
 ```
+- 上传文件
+```
+npm run upload <bucket name(required)> <file1> <file2> <file3> ...
+```
+成功返回该文件的signature
+
+- 展示文件
+浏览器中输入 http://localhost:{port}/e/{signature} 即可展示刚刚上传的文件
+  
+ ### 相关API
+ 浏览器中键入 http://localhost:{port}/swagger-ui.html 即可获取详细的 api 信息
+  
+ ## 完
+  
