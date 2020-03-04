@@ -9,7 +9,6 @@
     "axios": "^0.19.2",
     "bcrypt": "^3.0.8",
     "colors": "^1.4.0",
-    "donkey-plugin-ps": "file:../donkey-plugin-ps",
     "egg": "^2.15.1",
     "egg-passport": "^2.1.1",
     "egg-passport-jwt": "^1.0.0",
