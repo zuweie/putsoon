@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 18:20:05
- * @LastEditTime: 2020-03-05 15:27:02
+ * @LastEditTime: 2020-03-06 00:14:50
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/libs/install.js
@@ -23,7 +23,8 @@ function bcrypt_password(plaint_pass) {
     return hash;
 }
 function replace_money_symbol (txt) {
-    return txt.replace(/\$/g, '\\$');
+    return txt;
+    //return txt.replace(/\$/g, '\\$');
 }
 
 module.exports = async function () {
@@ -71,7 +72,11 @@ module.exports = async function () {
         shell.rm('-rf', cwd+'/database/config/database.json');
         
         // change the databse config file.
-        shell.exec('pwd=`pwd` && sed "s:{pwd}:${pwd}:g" '+cwd+'/backend-console/build-stuff/sqlite.database.json.tpl'+' > '+cwd+'/database/config/database.json');
+        //shell.exec('pwd=`pwd` && sed "s:{pwd}:${pwd}:g" '+cwd+'/backend-console/build-stuff/sqlite.database.json.tpl'+' > '+cwd+'/database/config/database.json');
+
+        let db_config = fs.readFileSync(cwd+'/backend-console/build-stuff/sqlite.database.json.tpl').toString();
+        db_config = db_config.replace(/\{pwd\}/g, cwd);
+        fs.writeFileSync(cwd+'/database/config/database.json', db_config);
 
         // 1 copy migration
         shell.cp('-r', cwd+'/backend-console/build-stuff/migrations/*.js', cwd+'/database/migrations/');
@@ -88,11 +93,20 @@ module.exports = async function () {
         let datetime = moment(new Date()).format('YYYYMMDDHHmm');
         let tablename = 'AdminUsers';
         
-        shell.exec('tablename="'+tablename+'" && nickname="'+nickname+'" && login="'+login+'" && password="'+password+'" && email="'+email+'" && sed -e "s:{tablename}:${tablename}:g" -e "s:{nickname}:${nickname}:g" -e "s:{login}:${login}:g" -e "s:{password}:${password}:g" -e "s:{email}:${email}:g" '+cwd+'/backend-console/build-stuff/seed-admin-user.js.tpl > '+cwd+'/backend-console/build-stuff/'+datetime+'-admin-user.js');
-        
+        // 因为windows上对sed的支持不足，所以只能用原始的办法了。
+        //shell.exec('tablename="'+tablename+'" && nickname="'+nickname+'" && login="'+login+'" && password="'+password+'" && email="'+email+'" && sed -e "s:{tablename}:${tablename}:g" -e "s:{nickname}:${nickname}:g" -e "s:{login}:${login}:g" -e "s:{password}:${password}:g" -e "s:{email}:${email}:g" '+cwd+'/backend-console/build-stuff/seed-admin-user.js.tpl > '+cwd+'/backend-console/build-stuff/'+datetime+'-admin-user.js');
+
         // 4 copy the seeder file.
         shell.rm('-rf', cwd+'/database/seeders/*');
-        shell.mv('-f', cwd+'/backend-console/build-stuff/'+datetime+'-admin-user.js', cwd+'/database/seeders/');
+
+        let admin_seeder = fs.readFileSync(cwd+'/backend-console/build-stuff/seed-admin-user.js.tpl').toString();
+        admin_seeder = admin_seeder.replace(/\{tablename\}/g, tablename);
+        admin_seeder = admin_seeder.replace(/\{nickname\}/g, nickname);
+        admin_seeder = admin_seeder.replace(/\{login\}/g, login);
+        admin_seeder = admin_seeder.replace(/\{email\}/g, email);
+        admin_seeder = admin_seeder.replace(/\{password\}/g, password);
+        fs.writeFileSync(cwd+'/database/seeders/'+datetime+'-admin-user.js', admin_seeder);
+        //shell.mv('-f', cwd+'/backend-console/build-stuff/'+datetime+'-admin-user.js', cwd+'/database/seeders/');
         
         // 5 seeding...
         //console.log(colors.green('seeding ...'));
