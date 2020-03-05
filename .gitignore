@@ -17,3 +17,4 @@ media_source/
 backend-console/build-stuff/seeders/
 .login-session.json
 .port
+.sequelizerc
