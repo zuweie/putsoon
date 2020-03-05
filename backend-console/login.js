@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-27 08:17:41
- * @LastEditTime: 2020-02-28 17:33:58
+ * @LastEditTime: 2020-03-05 15:31:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/backend-console/login.js
@@ -20,8 +20,7 @@ module.exports = async function (login='admin', password='123456') {
             password: password
         });
         if (response.status == 200) {
-            let fd = fs.openSync(__dirname+'/../.login-session.json','w+');
-            let body = response.data;
+            let fd = fs.openSync(process.cwd()+'/.login-session.json','w+');
             fs.writeSync(fd, JSON.stringify(response.data));
             console.log(colors.green('login success ~'));
         }else{

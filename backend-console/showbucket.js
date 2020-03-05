@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-27 11:38:57
- * @LastEditTime: 2020-02-28 17:40:05
+ * @LastEditTime: 2020-03-05 15:37:35
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/backend-console/showbucket.js
@@ -13,9 +13,9 @@ const axios = require('axios');
 const getport = require('./getport');
 
 module.exports = async function () {
-    if (fs.existsSync(__dirname+'/../.login-session.json') ) {
+    if (fs.existsSync(process.cwd()+'/.login-session.json') ) {
         
-        let info =  fs.readFileSync(__dirname+'/../.login-session.json');
+        let info =  fs.readFileSync(process.cwd()+'/.login-session.json');
         let login_session = JSON.parse(info);
         let access_token = login_session.data.access_token;
         let host = 'http://127.0.0.1';

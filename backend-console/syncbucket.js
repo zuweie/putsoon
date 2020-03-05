@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-29 00:33:59
- * @LastEditTime: 2020-02-29 00:42:17
+ * @LastEditTime: 2020-03-05 15:37:56
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/backend-console/syncbucket.js
@@ -14,8 +14,8 @@ const colors = require('colors/safe');
 
 module.exports = async function (bucket) {
 
-    if ( fs.existsSync (__dirname+'/../.login-session.json') ) {
-        let info =  fs.readFileSync(__dirname+'/../.login-session.json');
+    if ( fs.existsSync (process.cwd()+'/.login-session.json') ) {
+        let info =  fs.readFileSync(process.cwd()+'/.login-session.json');
         let login_session = JSON.parse(info);
         let access_token = login_session.data.access_token;
         let host = "http://127.0.0.1";

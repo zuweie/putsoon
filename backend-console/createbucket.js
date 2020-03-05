@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-27 09:05:33
- * @LastEditTime: 2020-02-28 17:38:10
+ * @LastEditTime: 2020-03-05 15:36:15
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/backend-console/createbucket.js
@@ -13,8 +13,8 @@ const axios = require('axios');
 const getport = require('./getport');
 
 module.exports = async function (bucket) {
-    if (fs.existsSync(__dirname+'/../.login-session.json')) {
-        let info =  fs.readFileSync(__dirname+'/../.login-session.json');
+    if (fs.existsSync(process.cwd()+'/.login-session.json')) {
+        let info =  fs.readFileSync(process.cwd()+'/.login-session.json');
         let login_session = JSON.parse(info);
         let access_token = login_session.data.access_token;
         let port = getport();

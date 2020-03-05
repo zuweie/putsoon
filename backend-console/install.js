@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 18:20:05
- * @LastEditTime: 2020-03-05 11:16:52
+ * @LastEditTime: 2020-03-05 15:27:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/libs/install.js
@@ -61,20 +61,20 @@ module.exports = async function () {
         /**
          * shell sequelize-cli
          */
-        /** 0 build the .sequelizecr */
-        shell.exec('touch .sequelizerc');
+        let cwd = process.cwd();
+        
         /** copy the sequelizerc file to dest */
-        shell.cp('-r', __dirname+'/build-stuff/sequelizerc', process.cwd()+'/.sequelizerc');
+        shell.cp('-r', cwd+'/backend-console/build-stuff/sequelizerc', cwd+'/.sequelizerc');
 
         shell.exec('npx sequelize-cli init --force');
         
-        shell.rm('-rf', process.cwd()+'/database/config/database.json');
+        shell.rm('-rf', cwd+'/database/config/database.json');
         
         // change the databse config file.
-        shell.exec('pwd=`pwd` && sed "s:{pwd}:${pwd}:g" '+__dirname+'/build-stuff/sqlite.database.json.tpl'+' > '+process.cwd()+'/database/config/database.json');
+        shell.exec('pwd=`pwd` && sed "s:{pwd}:${pwd}:g" '+cwd+'/backend-console/build-stuff/sqlite.database.json.tpl'+' > '+cwd+'/database/config/database.json');
 
         // 1 copy migration
-        shell.cp('-r', __dirname+'/build-stuff/migrations/*.js', process.cwd()+'/database/migrations/');
+        shell.cp('-r', cwd+'/backend-console/build-stuff/migrations/*.js', cwd+'/database/migrations/');
         // 2 run migration
         //shell.exec('npx sequelize-cli db:migrate');
 
@@ -83,16 +83,16 @@ module.exports = async function () {
         // replace the admin-user name & pwd
         console.log(colors.green('generate the Admin user Seeder file ...'));
 
-        shell.rm('-rf', __dirname+'/build-stuff/seeders/*');
+        //shell.rm('-rf', cwd+'/build-stuff/seeders/*');
         
         let datetime = moment(new Date()).format('YYYYMMDDHHmm');
         let tablename = 'AdminUsers';
         
-        shell.exec('tablename="'+tablename+'" && nickname="'+nickname+'" && login="'+login+'" && password="'+password+'" && email="'+email+'" && sed -e "s:{tablename}:${tablename}:g" -e "s:{nickname}:${nickname}:g" -e "s:{login}:${login}:g" -e "s:{password}:${password}:g" -e "s:{email}:${email}:g" '+__dirname+'/build-stuff/seed-admin-user.js.tpl > '+__dirname+'/build-stuff/'+datetime+'-admin-user.js');
+        shell.exec('tablename="'+tablename+'" && nickname="'+nickname+'" && login="'+login+'" && password="'+password+'" && email="'+email+'" && sed -e "s:{tablename}:${tablename}:g" -e "s:{nickname}:${nickname}:g" -e "s:{login}:${login}:g" -e "s:{password}:${password}:g" -e "s:{email}:${email}:g" '+cwd+'/backend-console/build-stuff/seed-admin-user.js.tpl > '+cwd+'/backend-console/build-stuff/'+datetime+'-admin-user.js');
         
         // 4 copy the seeder file.
-        shell.rm('-rf', process.cwd()+'/database/seeders/*');
-        shell.mv('-f', __dirname+'/build-stuff/'+datetime+'-admin-user.js', process.cwd()+'/database/seeders/');
+        shell.rm('-rf', cwd+'/database/seeders/*');
+        shell.mv('-f', cwd+'/backend-console/build-stuff/'+datetime+'-admin-user.js', cwd+'/database/seeders/');
         
         // 5 seeding...
         //console.log(colors.green('seeding ...'));
@@ -100,13 +100,13 @@ module.exports = async function () {
         
         // 6 copy the model
         console.log(colors.green('copying the model file'));
-        shell.cp('-r', __dirname+'/build-stuff/models/*.js', process.cwd()+'/database/models')
+        shell.cp('-r', cwd+'/backend-console/build-stuff/models/*.js', cwd+'/database/models')
         
         // 7 copy the model wapper
         console.log(colors.green('copying the connect driver'));
-        shell.cp('-r', __dirname+'/build-stuff/conn.js.tpl', process.cwd()+'/database/conn.js');
+        shell.cp('-r', cwd+'/backend-console/build-stuff/conn.js.tpl', cwd+'/database/conn.js');
 
         // 8 copy the model wapper
         console.log(colors.green('copying the sequelize model wapper'));
-        shell.cp('-r', __dirname+'/build-stuff/sequelize_model.js.tpl', process.cwd()+'/database/sequelize_model.js');
+        shell.cp('-r', cwd+'/backend-console/build-stuff/sequelize_model.js.tpl', cwd+'/database/sequelize_model.js');
     }

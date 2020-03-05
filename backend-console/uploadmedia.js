@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-01 08:21:54
- * @LastEditTime: 2020-03-01 13:30:52
+ * @LastEditTime: 2020-03-05 15:38:26
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/backend-console/uploadmeida.js
@@ -15,9 +15,9 @@ const http = require('http');
 const path = require('path');
 const FileType = require('file-type');
 module.exports = async function (bucket, ... upload_file) {
-    if ( fs.existsSync (__dirname+'/../.login-session.json') ) { 
+    if ( fs.existsSync (process.cwd()+'/.login-session.json') ) { 
 
-        let info =  fs.readFileSync(__dirname+'/../.login-session.json');
+        let info =  fs.readFileSync(process.cwd()+'/.login-session.json');
         let login_session = JSON.parse(info);
         let access_token = login_session.data.access_token;
         let host = "127.0.0.1";
