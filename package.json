@@ -52,15 +52,15 @@
     "lint": "eslint .",
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
-    "setup": "./backend-console/index.js install",
-    "seeding:pro": "NODE_ENV=production ./backend-console/index.js seeding",
-    "seeding:dev": "NODE_ENV=development ./backend-console/index.js seeding",
-    "login": "./backend-console/index.js login",
-    "upload": "./backend-console/index.js upload:media",
-    "bucket:create": "./backend-console/index.js create:bucket",
-    "bucket:show": "./backend-console/index.js show:bucket",
-    "bucket:delete": "./backend-console/index.js delete:bucket",
-    "bucket:sync": "./backend-console/index.js sync:bucket"
+    "setup": "node backend-console/index.js install",
+    "seeding:pro": "NODE_ENV=production node backend-console/index.js seeding",
+    "seeding:dev": "NODE_ENV=development node backend-console/index.js seeding",
+    "login": "node backend-console/index.js login",
+    "upload": "node backend-console/index.js upload:media",
+    "bucket:create": "node backend-console/index.js create:bucket",
+    "bucket:show": "node backend-console/index.js show:bucket",
+    "bucket:delete": "node backend-console/index.js delete:bucket",
+    "bucket:sync": "node backend-console/index.js sync:bucket"
   },
   "ci": {
     "version": "10"
