@@ -2,7 +2,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-09 15:48:15
- * @LastEditTime: 2020-03-01 16:38:18
+ * @LastEditTime: 2020-03-07 01:14:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/index.js
@@ -26,7 +26,7 @@ try {
     }else if (action == 'login') {
         console.log(colors.yellow('usage: login <account (default admin)> <password (default 123456)>'));
         let acc = process.argv[3]? process.argv[3] : 'admin';
-        let pwd = process.argv[4]? process.args[4] : '123456';
+        let pwd = process.argv[4]? process.argv[4] : '123456';
         const login = require('./login');
         login(acc, pwd);
 
