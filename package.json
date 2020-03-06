@@ -15,6 +15,7 @@
     "egg-scripts": "^2.11.0",
     "egg-swagger-doc": "^2.3.2",
     "file-type": "^14.1.2",
+    "inquirer": "^7.0.6",
     "jsonwebtoken": "^8.5.1",
     "md5": "^2.2.1",
     "md5-file": "^4.0.0",
