@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-01 11:43:05
+ * @LastEditTime: 2020-03-06 16:10:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -174,7 +174,7 @@ class MediaController extends Controller {
                     ctx.status = 404;
                 }
             }catch(e) {
-                console.log('controller#media.js@e',e);
+                console.log('controller#media.js#explose_file@e',e);
                 ctx.status = 400;
                 ctx.body = e;
                 return;
