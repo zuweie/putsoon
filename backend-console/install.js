@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 18:20:05
- * @LastEditTime: 2020-03-06 00:14:50
+ * @LastEditTime: 2020-03-06 10:41:22
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/libs/install.js
@@ -25,6 +25,11 @@ function bcrypt_password(plaint_pass) {
 function replace_money_symbol (txt) {
     return txt;
     //return txt.replace(/\$/g, '\\$');
+}
+
+function replace_windows_path_split (path) {
+    // this for Windows
+    return path.replace(/\\/g, '\\\\');//.replace(/\//g, '\\\/');
 }
 
 module.exports = async function () {
@@ -75,7 +80,10 @@ module.exports = async function () {
         //shell.exec('pwd=`pwd` && sed "s:{pwd}:${pwd}:g" '+cwd+'/backend-console/build-stuff/sqlite.database.json.tpl'+' > '+cwd+'/database/config/database.json');
 
         let db_config = fs.readFileSync(cwd+'/backend-console/build-stuff/sqlite.database.json.tpl').toString();
-        db_config = db_config.replace(/\{pwd\}/g, cwd);
+        
+        // test
+        
+        db_config = db_config.replace(/\{pwd\}/g, replace_windows_path_split(cwd));
         fs.writeFileSync(cwd+'/database/config/database.json', db_config);
 
         // 1 copy migration
