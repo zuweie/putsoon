@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 15:01:49
- * @LastEditTime: 2020-03-03 11:44:05
+ * @LastEditTime: 2020-03-07 10:37:33
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task.js
@@ -91,6 +91,8 @@ class TaskService extends Service {
                 // 这里要认真处理一下handler返回的结果
                 /** 返回检测，OK就行，不OK就throw **/
 
+                // 这个是
+                
                 console.debug('task.js#execTask@result', result);
                 let dest = ''
                 if (typeof result == 'string') {

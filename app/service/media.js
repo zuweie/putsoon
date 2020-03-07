@@ -1,16 +1,18 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-03 11:25:32
+ * @LastEditTime: 2020-03-07 16:04:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
  */
 'use strict';
 const fs      = require('fs');
-const fx = require('mkdir-recursive');
 const FileType = require('file-type');
 const path    = require('path');
+const http    = require('http');
+const https   = require('https');
+//const URL     = require('url');
 const Service = require('egg').Service;
 const sequelize = require('../../database/conn')();
 const Op = require('sequelize').Op;
@@ -19,8 +21,93 @@ const md5     = require('md5');
 const Media = require('../../database/sequelize_model')('media');
 const Task  = require('../../database/sequelize_model')('task');
 
-
 class MediaService extends Service {
+
+    async syncNetMediafile(file_url, _bucket, headers={}) {
+
+        
+        let context = this;
+        let _m = await this.getMediaFile(file_url);
+        if (_m) {
+            return {signature: _m.signature};
+        }
+
+        let url = new URL(file_url);
+
+        console.debug('media.js#syncNetMediafile@file_url', file_url);
+        console.debug('media.js#syncNetMediafile@url', url);
+
+        let download = new Promise((resolve, reject) => {
+
+            let tmp_dir = context.service.task.mkTmpDir();
+            let tmp_file = tmp_dir + '/donwload_' + Date.now() + '.tmp';
+            let ws = fs.createWriteStream(tmp_file, {
+                flags: 'w+'
+            });
+            let req_client = null;
+            if (url.protocol == 'http:') {
+                // use http
+                req_client = http;
+            }else if (url.protocol == 'https:') {
+                // use https
+                req_client = https;
+            }
+            if (req_client) {
+                req_client.get(file_url, {
+                    headers: headers
+                }, res => {
+                    if (res.statusCode !== 200) {
+                        reject({ statusCode: res.statusCode, body: res.body });
+                    }
+                    ws.on('finish', () => {
+                        ws.close();
+                        resolve(tmp_file);
+                    }).on('error', (err) => {
+                        ws.close();
+                        fs.unlinkSync(tmp_file);
+                        reject(err);
+                    });
+
+                    res.pipe(ws);
+                });
+            } else {
+                reject('unknown protocol')
+            }
+        });
+
+        try {
+            let donwload_file = await download;
+            
+            if (fs.existsSync(donwload_file)) {
+
+                // TODO : copy the file to bucket;
+                let file_info = await FileType.fromFile(donwload_file);
+                let extname = file_info? '.'+file_info.ext: '';
+                let mime = file_info? file_info.mime: 'application/octet-stream';
+                let file_hash = await md5File(donwload_file);
+                let signature = md5(file_url+file_hash);
+                let dest = this.service.bucket.fullBucketDir(_bucket)+signature+extname;
+                fs.renameSync(donwload_file, dest);
+
+                let insert = {};
+                insert.firstname = file_url;
+                insert.firstname_hash = md5(file_url);
+                insert.ext = extname;
+                insert.query_params = '';
+                insert.signature = signature;
+                insert.bucket = _bucket.bucket;
+                insert.file_hash = file_hash;
+                insert.mime = mime;
+                insert.path = dest;
+
+                await Media.upsert(insert);
+                return {signature};
+            }
+        }catch(e) {
+            console.debug('media.js#syncNetMediafile@e', e);
+            throw e;
+        }
+    }
 
     /**
      * _xx 下划线开头的变量，意味这个变量已经存在于内存，不用再从数据库load，否则它只是一个字符串。
@@ -36,12 +123,16 @@ class MediaService extends Service {
 
             let extname;
             let filename;
+            let filename_hash;
+
             if (save_info && save_info.filename) {
                 extname = path.extname(save_info.filename);
                 filename = path.basename(save_info.filename, extname);
+                filename_hash = md5(filename);
             }else {
                 extname = path.extname(file_path);
                 filename = path.basename(file_path, extname);
+                filename_hash = md5(filename);
             }
             
             console.debug('media.js#syncMediafile@extname', extname);
@@ -67,7 +158,7 @@ class MediaService extends Service {
                 _m = medias[0];
 
                 for(let i=0; i<medias.length; ++i) {
-                    if (medias[i].firstname == filename) {
+                    if (medias[i].firstname_hash == filename_hash) {
                         _m = medias[i];
                         _case = 3;
                         break;
@@ -115,6 +206,7 @@ class MediaService extends Service {
                if (dest != '' && fs.existsSync(dest)) {
                     let insert = {};
                     insert.firstname = filename;
+                    insert.firstname_hash = filename_hash;
                     insert.ext = extname;
                     insert.query_params = '';
                     insert.signature = signature;
@@ -147,6 +239,7 @@ class MediaService extends Service {
         }
 
     }
+    
     async saveUploadMedia(file_upload, bucket) {
 
         try{
@@ -212,7 +305,7 @@ class MediaService extends Service {
             return this.ctx.helper.JsonFormat_err(-1, e);
         }
     }   
-
+    
     async getUploadMedia(bucket, page=1, perpage=20) {
         return await Media.findAll({
             where:{
@@ -281,7 +374,7 @@ class MediaService extends Service {
     async getMediaFile (signature) {
 
         return await Media.findOne({where:{
-            [Op.or]: [{signature: signature}, {firstname: signature}]
+            [Op.or]: [{signature: signature}, {firstname_hash: md5(signature)}]
         }});
     }
    

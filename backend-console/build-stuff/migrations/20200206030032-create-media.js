@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:46:44
- * @LastEditTime: 2020-02-23 11:15:20
+ * @LastEditTime: 2020-03-07 12:55:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/backend-console/build-stuff/migrations/20200206030032-create-media.js
@@ -17,6 +17,9 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       firstname: {
+        type: Sequelize.STRING
+      },
+      firstname_hash: {
         type: Sequelize.STRING
       },
       ext: {

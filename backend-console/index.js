@@ -2,7 +2,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-09 15:48:15
- * @LastEditTime: 2020-03-07 01:14:27
+ * @LastEditTime: 2020-03-07 13:48:44
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/index.js
@@ -70,6 +70,13 @@ try {
             uploadmedia(bucket, process.argv[4],process.argv[5],process.argv[6],process.argv[7],process.argv[8],process.argv[9],process.argv[10],process.argv[11],process.argv[12],process.argv[13],);
         }else {
             console.log(colors.red('bucket or upload required ~ '));
+        }
+    }else if (action == "download:media") {
+        console.log(colors.yellow('usage: download <bucket name (require)> <url1 (required)> <url2> <url3>...'));
+        let bucket = process.argv[3];
+        if (bucket) {
+            const syncNetmedia = require('./donwloadmedia');
+            syncNetmedia(bucket, process.argv[4],process.argv[5],process.argv[6],process.argv[7],process.argv[8],process.argv[9],process.argv[10],process.argv[11],process.argv[12],process.argv[13]);
         }
     }
 }catch (err) {

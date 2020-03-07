@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-06 16:10:10
+ * @LastEditTime: 2020-03-07 16:14:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -16,6 +16,48 @@ const fs = require('fs');
 
 class MediaController extends Controller {
     
+    /**
+     * @summary Sync Net Media
+     * @description donwload the media file from network
+     * @router POST /api/v1/sync/net/media
+     * @request query string _token upload token, IF the upload_guard is on, the api need upload token, see /api/v1/token/upload/combine
+     * @request query string bucket IF the upload_guard is off, this api dose`t need upload token, but you must tall api which bucket you want to upload.
+     * @request body download_media *target
+     * @response 200 base_response ok
+     */
+
+    async syncNetMedia () {
+        const {ctx} = this;
+        console.debug('controller#media.js@ctx.request.body', ctx.request.body);
+        ctx.body = ctx.request.body;
+        let bucket = '';
+        if (ctx.app.config.bucket.upload_guard) {
+            _token = this.service.token.explodeToken(ctx.request.query._token);
+            bucket = _token.bucket;
+        }else {
+            bucket = ctx.request.query.bucket;
+        }
+        
+        let _bucket = await ctx.service.bucket.getBucket(bucket);
+
+        if (_bucket) {
+            let targets = ctx.request.body.targets;
+            let signatures = [];
+            for (let t of targets) {
+                try {
+                    let headers = t.headers? t.headers: {};
+                    let sign = await this.service.media.syncNetMediafile(t.url, _bucket, headers);
+                    signatures.push(sign);
+                }catch (e) {
+                    console.debug('controller#media.js#SyncNetMedia@e',e);
+                };
+            }
+            ctx.status = 200;
+            ctx.body = ctx.helper.JsonFormat_ok(signatures);
+        }else{
+            ctx.status = 404;
+        }
+    }
 
     /**
      * @summary Upload file 
@@ -70,7 +112,7 @@ class MediaController extends Controller {
                 return;
             }
             ctx.status = 200;
-            ctx.body = result;
+            ctx.body = ctx.helper.JsonFormat_ok(result);
             
         }else{
             ctx.status = 404;

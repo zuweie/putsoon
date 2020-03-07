@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-02-25 14:07:53
+ * @LastEditTime: 2020-03-07 12:22:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/router.js
@@ -40,6 +40,7 @@ module.exports = app => {
   router.post('/api/v1/token/upload/combine', controller.token.combine_upload_token);
 
   router.post('/api/v1/upload', vtoken, controller.media.upload);
+  router.post('/api/v1/sync/net/media', vtoken, controller.media.syncNetMedia);
   router.get('/api/v1/files', jwt, controller.media.show_files);
   router.del('/api/v1/files', jwt, controller.media.delete_files);
 
