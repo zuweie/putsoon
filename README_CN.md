@@ -57,6 +57,12 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
 ```
 成功返回该文件的signature
 
+- 获取网络文件
+```
+npm run download <bucket name(required> <url1> <url2> <url3> ...
+```
+成功返回，则返回获取文件的signature
+
 - 展示文件
 浏览器中输入 http://localhost:{port}/e/{signature} 即可展示刚刚上传的文件
   
