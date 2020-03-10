@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 11:22:42
- * @LastEditTime: 2020-03-03 12:06:59
+ * @LastEditTime: 2020-03-10 13:42:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/agent.js
@@ -13,32 +13,15 @@ const shell = require('shelljs');
 module.exports = agent => {
 
     // processing the task.
-    agent.messenger.on('new_task', async key => {
+    agent.messenger.on('new_task', (... keys) => {
 
         console.debug('new task has create, send the task to one of app process!');
-
-        if (key != '') {
-            // find all idle task 
-            let task = await Task.findOne({where:{
-                key: key,
-                status: 'idle'
-            }})
-            if (task) {
-                agent.messenger.sendRandom('exec_task', task);
-                console.debug('1 agent sendRandom message with key '+task.key);
-            }
-        }else{
-            // one idle task
-            let tasks = await Task.findAll({where:{
-                status: 'idle'
-            }});
-            if (tasks && tasks.length > 0) {
-                tasks.forEach(t => {
-                    agent.messenger.sendRandom('exec_task', t);
-                    console.debug('2 agent sendRandom message with key '+ t.key);
-                })
-            }
+        
+        for (let k of keys) {
+            agent.messenger.sendRandom('exec_task', k);
+            console.debug('agent.js#key@key ', k);
         }
+        
     });
     agent.messenger.on('egg-ready', () => {
         // clear all the tmp file folder

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-17 12:40:44
- * @LastEditTime: 2020-02-17 12:40:44
+ * @LastEditTime: 2020-03-10 10:12:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/task.js
@@ -37,7 +37,7 @@ class TaskController extends Controller {
         this.ctx.body = this.ctx.helper.JsonFormat_ok(task);
     }
 
-         /**
+    /**
       * @summary delete task 
       * @consumes application/x-www-form-urlencoded
       * @description delete task
@@ -52,6 +52,15 @@ class TaskController extends Controller {
         let del = await this.service.task.deleteTasks(ids);
         this.ctx.status = 200;
         this.ctx.body = this.ctx.helper.JsonFormat_ok(del);
+    }
+
+    async test () {
+        try {
+            this.ctx.service.task.postTask('aaa', 'ccc', 'hhh',  JSON.stringify(['aaa', 'bbb']), 'ccc', 'eee');
+        }catch (e) {
+            console.debug(e);
+        }
+        this.ctx.status = 200;
     }
 }
 

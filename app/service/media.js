@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-07 16:04:21
+ * @LastEditTime: 2020-03-10 16:52:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -20,7 +20,6 @@ const md5File = require('md5-file/promise');
 const md5     = require('md5');
 const Media = require('../../database/sequelize_model')('media');
 const Task  = require('../../database/sequelize_model')('task');
-
 class MediaService extends Service {
 
     async syncNetMediafile(file_url, _bucket, headers={}) {
@@ -240,71 +239,7 @@ class MediaService extends Service {
 
     }
     
-    async saveUploadMedia(file_upload, bucket) {
-
-        try{
-            /**
-             * 文件处理去掉文件后缀
-             * 
-             */
-            let file_hash = await md5File(file_upload.filepath);
-            let extname = path.extname(file_upload.filepath); 
-            let file_name = path.basename(file_upload.filename, extname);
-            let signature = md5(file_name+file_hash);
-
-            let media = await Media.findOne({where:{file_hash:file_hash}});
-            
-            if (!media) {
-                // file is not exists, save it
-                /**
-                 * 1 check the bucket first
-                 */
-
-                let _bucket = await this.service.bucket.getBucket(bucket);
-                if (_bucket) {
-
-                    if(this.service.bucket.syncBucketPath(_bucket)){
-
-                        // 1 copy the upload file to bucket
-                        let src = file_upload.filepath;
-                        let dest = this.service.bucket.fullBucketDir(_bucket)+signature+extname;
-                        fs.copyFileSync(src, dest);
-                        if (fs.existsSync(dest)) {
-                            // 2 insert the record to database;
-                            try{
-                                // remove upload file.
-                                fs.unlinkSync(src);
-                            }catch(e) {
-                                console.log(e);
-                            }
-                            let insert = {};
-                            insert.firstname = file_name;
-                            insert.ext = extname;
-                            insert.query_params = '';
-                            insert.signature = signature;
-                            insert.mime = file_upload.mime;
-                            insert.bucket = bucket;
-                            insert.file_hash = file_hash;
-                            insert.path = dest;
-                            let result = await Media.upsert(insert);
-                            return this.ctx.helper.JsonFormat_ok({signature:signature});
-                            
-                        }
-                    }else{
-                        return this.ctx.helper.JsonFormat_err(-1, 'bucket sync fail');
-                    }
-                    
-                }else {
-                    return this.ctx.helper.JsonFormat_err(-1, 'bucket <'+bucket+'> not exists')
-                }
-                                
-            }else{
-                return this.ctx.helper.JsonFormat_err(-1, 'file exists!');
-            }
-        }catch (e) {
-            return this.ctx.helper.JsonFormat_err(-1, e);
-        }
-    }   
+    
     
     async getUploadMedia(bucket, page=1, perpage=20) {
         return await Media.findAll({
@@ -366,7 +301,7 @@ class MediaService extends Service {
     async getMediaFileReadStream (signature) {
         let _media = await this.getMediaFile(signature);
         if (_media && fs.existsSync(_media.path)) {
-            return {stream: fs.createReadStream(_media.path), mime: _media.mime};
+            return {stream: fs.readFileSync(_media.path), mime: _media.mime};
         }
         return false;
     }
@@ -374,17 +309,48 @@ class MediaService extends Service {
     async getMediaFile (signature) {
 
         return await Media.findOne({where:{
-            [Op.or]: [{signature: signature}, {firstname_hash: md5(signature)}]
+            [Op.or]: [{signature: signature}, {firstname_hash: md5(signature)}, {firstname_hash: signature}]
         }});
     }
-   
+
+    async postCopyTask (_media, handler, _args) {
+        let taskey = this.service.task.calKey(_media.firstname, handler, JSON.stringify(_args));
+        await this.service.task.postTask(
+            _media.firstname, 
+            taskey, 
+            handler, 
+            JSON.stringify(_args),
+            _media.path,
+            'copy'
+        );
+    }
+
+    async getCopyMediafileStream (_media, handler, _args) {
+        let key = this.service.task.calKey(_media.firstname, handler, JSON.stringify(_args));
+        let cache_file = this.service.bucket.fullBucketDir(_media)+'/cache/'+key;
+        if (fs.existsSync(cache_file)) {
+            let fileinfo = await FileType.fromFile(cache_file);
+            return {stream: fs.createReadStream(cache_file), mime: (fileinfo? fileinfo.mime: 'application/octet-stream')};
+        }else {
+            let result = await this.TryToGetCopyMediafile(_media, handler, _args);
+            console.debug('media.js#getCopyMediafileStream@result', result);
+            if (fs.existsSync(result.file)) {
+                let fileinfo = await FileType.fromFile(result.file);
+                return {stream: fs.createReadStream(result.file), mime: (fileinfo? fileinfo.mime: 'application/octet-stream')};
+            }else{
+                throw 'copy file not exists!jsjflaksfas';
+            }
+        }
+        
+    }
+
     /**
      * BIG BIG IMPORT FUNCTION
      * @param {*} _media 
-     * @param {*} _handler 
-     * @param {*} args 
+     * @param {*} handler 
+     * @param {*} _args 
      */
-    async TryToGetCopyMediafile(_media, _handler, args=[], sync=true) {
+    async TryToGetCopyMediafile(_media, handler, _args=[], sync=true) {
 
         /**
          * make the cacheDir first
@@ -392,67 +358,68 @@ class MediaService extends Service {
         let context = this;
         return new Promise( async (resolve, reject) => {
 
-            let taskey = context.service.task.calKey(_media, _handler, args);
+            let taskey = context.service.task.calKey(_media.firstname, handler, JSON.stringify(_args));
             let _task = await context.service.task.findTask(taskey);
             let timer = -1;
-            let tasklistener = null;
+            let _tasklistener = null;
             /* if no task try to post a new one */
-            if (!_task || _task.try < this.app.config.task.try_limit ) {
+            if (!_task || _task.try < context.app.config.task.try_limit ) {
                 try{
-                    let res = false;
 
                     if (!_task) {
-                        res = await context.service.task.postTask(_media, _handler, args);
-
+                        await context.postCopyTask(_media,handler, _args);//context.postCopyMediaTask(_media, _handler, _args);
                     }else{
-                        res = await context.service.task.resetTaskStatus(_task);
+                        await context.service.task.resetTaskStatus(_task.key);
                     }
-                    if (res) {
 
-                        // add listener here ?
-                        // 1 listene the message
-                        tasklistener = {};
-                        tasklistener.onTaskStatus = async (taskey) => {
-                            console.debug('media.js#tasklistener#onTaskStatus@taskey', taskey);
-                            let on_task = await context.service.task.findTask(taskey);
-                            //console.debug('media.js#tasklistener#onTaskStataus@task.status', on_task);
-                            if (on_task.status == 'done') {
-                                let info = context.service.task.fileInfo2Obj(on_task.file_info);
-                                resolve({ file: on_task.dest, mime: info.mime });
-                                console.debug('media.js#tasklistener#onTaskStatus@task.status == done@task.dest & info', on_task.dest, info);
-                                if (timer != -1){
-                                    console.debug('media.js#tasklistener@clearTimeout', timer);
-                                    clearTimeout(timer);
-                                }
-                            } else if (on_task.status == 'err') {
-                                if (timer != -1) {
-                                    console.debug('media.js#tasklistener@clearTimeout', timer);
-                                    clearTimeout(timer);
-                                }
-                                reject(this.service.task.getLastErrmsg(on_task));
-                                
+                    
+                    // 定义监听器。
+                    _tasklistener = {};
+                    _tasklistener.onTaskStatus = async (taskey) => {
+                        console.debug('media.js#tasklistener#onTaskStatus@taskey', taskey);
+                        let _on_task = await context.service.task.findTask(taskey);
+                        //console.debug('media.js#tasklistener#onTaskStataus@task.status', on_task);
+                        if (_on_task.status == 'done') {
+                            //let info = context.service.task.fileInfo2Obj(_on_task.file_info);
+                            resolve({ file: _on_task.dest });
+                            console.debug('media.js#tasklistener#onTaskStatus@task.status == done@task.dest & info', _on_task.dest);
+                            if (timer != -1) {
+                                console.debug('media.js#tasklistener@clearTimeout', timer);
+                                clearTimeout(timer);
                             }
-                            context.app.rmTasklistener(tasklistener);
-                        };
-                        context.app.addTasklistener(tasklistener);
+                        } else if (_on_task.status == 'err') {
+                            if (timer != -1) {
+                                console.debug('media.js#tasklistener@clearTimeout', timer);
+                                clearTimeout(timer);
+                            }
+                            reject(context.service.task.getLastErrmsg(_on_task));
 
-                        context.app.messenger.sendToAgent('new_task', taskey);
-                        console.debug('media#trytoGetCopyMediafiel', 'sendToAgent '+taskey)
-                    }
+                        }
+                        // 用完了把监听器移除。
+                        context.app.rmTasklistener(_tasklistener);
+                    };
+                    // 移除监听器。
+                    context.app.addTasklistener(_tasklistener);
+
+                    //发送消息去启动task
+                    context.app.messenger.sendToAgent('new_task', taskey);
+                    console.debug('media#trytoGetCopyMediafiel', 'sendToAgent ' + taskey);
 
                     if (!sync) {
                         reject('task processing');
                     }
                 }catch(e) {
-                    console.debug(e);
-                    throw e;
+                    console.debug('media.js#TryToGetCopyMediafile@e', e);
+                    reject(e);
                 }
             }
 
+            // 刚刚插入的情况，插入了不会返回内存对象。
             if (!_task) {
                 _task = await context.service.task.findTask(taskey);
             }
 
+            // 再找一遍还是没有的话就直接reject
             if (!_task) {
                 reject('task fail');
             }
@@ -462,32 +429,33 @@ class MediaService extends Service {
                     reject('task is processing');
                 else {
                     
-                    // 双重保障，
+                    // 双重保障，30秒超时。
                     console.debug('media.js#TryToGetMediafile@setTimeout');
                     timer = setTimeout( async ()=>{
                         // time out checking the task;
                         _task = await context.service.task.findTask(taskey);
                         console.debug('media.js#Timer@task.status', _task.status);
                         if (_task.status == 'done') {
-                            let info = context.service.task.fileInfo2Obj(_task.file_info);
-                            resolve({file:_task.dest, mime:info.mime});
+                            //let info = context.service.task.fileInfo2Obj(_task.file_info);
+                            resolve({file:_task.dest});
                         }else if (_task.status == 'err') {
-                            reject(_task.errmsg);
+                            //reject(_task.errmsg);
+                            reject(context.service.task.getLastErrmsg(_task));
                         }else{
-                            reject('task time out');
+                            reject('task time out task id '+_task);
                         }
-                        if (tasklistener) {
-                            context.app.rmTasklistener(tasklistener);
+                        if (_tasklistener) {
+                            context.app.rmTasklistener(_tasklistener);
                         }
                     }, 30*1000);
                 }
             }else if (_task.status == 'done') {
-                let info = context.service.task.fileInfo2Obj(_task.file_info);
-                console.debug('media.js#TryToGetCopy@task.status == done@task.dest & info', _task.dest, info);
-                resolve({file:_task.dest, mime:info.mime});
+                //let info = context.service.task.fileInfo2Obj(_task.file_info);
+                //console.debug('media.js#TryToGetCopy@task.status == done@task.dest & info', _task.dest, info);
+                resolve({file:_task.dest});
             } else {
                 console.debug('media.js#TryToGetCopy@task.status == err & task.try > try_limit');
-                reject(this.service.task.getLastErrmsg(_task));
+                reject(context.service.task.getLastErrmsg(_task));
             }
         });
     } 

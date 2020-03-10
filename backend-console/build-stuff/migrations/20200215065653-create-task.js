@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 14:56:53
- * @LastEditTime: 2020-02-15 14:57:37
+ * @LastEditTime: 2020-03-09 20:52:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/database/migrations/20200215065653-create-task.js
@@ -39,6 +39,15 @@ module.exports = {
         type: Sequelize.STRING
       },
       status: {
+        type: Sequelize.STRING
+      },
+      percent: {
+        type: Sequelize.INTEGER
+      },
+      worker:{
+        type: Sequelize.INTEGER
+      },
+      executor: {
         type: Sequelize.STRING
       },
       errmsg: {

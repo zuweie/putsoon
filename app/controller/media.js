@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-07 16:14:12
+ * @LastEditTime: 2020-03-10 16:56:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -204,14 +204,7 @@ class MediaController extends Controller {
             try {
                 let _media = await this.service.media.getMediaFile(params.signature);
                 if (_media) {
-                    
-                    result = await ctx.service.media.TryToGetCopyMediafile(_media, params.media_handler, params.handler_parameters);
-                    console.debug('controller#media.js#export_file@result', result);
-                    if (fs.existsSync(result.file)) {
-                        result.stream = fs.createReadStream(result.file);
-                    }else{
-                        result = false;
-                    }
+                    result = await ctx.service.media.getCopyMediafileStream(_media, params.media_handler, params.handler_parameters);
                 }else{
                     ctx.status = 404;
                 }

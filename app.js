@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-05 10:28:31
- * @LastEditTime: 2020-02-28 17:48:36
+ * @LastEditTime: 2020-03-10 15:09:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app.js
@@ -21,14 +21,15 @@ module.exports = (app) => {
         return user.payload;
     });
     
-    app.messenger.on('exec_task', (task) => {
-        console.debug('app (pid '+process.pid+') receive a message to exec task');
+    app.messenger.on('exec_task', (taskey) => {
+        console.debug('app.js#on_exec_task: app (pid '+process.pid+') receive a message to exec task');
         //console.debug('task', task);
         const ctx = app.createAnonymousContext();
         ctx.runInBackground( async () => {
             try{
                 console.debug('app.js#app.messenger@exec_task start');
-                await ctx.service.task.execTask(task);
+                let _task = await ctx.service.task.findTask(taskey);
+                await ctx.service.task.execTask(_task);
                 console.debug('app.js#app.messenger@exec_task end')
             }catch(e){
                 console.debug(e);
@@ -37,7 +38,7 @@ module.exports = (app) => {
             console.debug('app (pid ' +process.pid +') send a message all the app to update task status');
             //let new_status_task = await ctx.service.task.findTask(task.key);
             //console.debug('app (pid '+process.id +') now task (before send)', new_status_task);
-            ctx.app.messenger.sendToApp('task_done', task.key);
+            ctx.app.messenger.sendToApp('task_done', taskey);
         })
     });
 

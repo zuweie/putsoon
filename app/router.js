@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-03-07 12:22:19
+ * @LastEditTime: 2020-03-10 10:02:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/router.js
@@ -49,4 +49,6 @@ module.exports = app => {
 
   router.get('/api/v1/task/show', jwt, controller.task.index);
   router.del('/api/v1/task/delete', jwt, controller.task.delete);
+
+  router.get('/api/v1/test/task', controller.task.test);
 };
