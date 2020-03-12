@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-12 15:02:52
+ * @LastEditTime: 2020-03-13 00:20:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -115,8 +115,14 @@ class MediaService extends Service {
             return {signature: _m.signature};
         } 
 
+        let _args = {};
+        _args.headers =headers;
+        _args.bucket = _bucket.bucket;
+        let taskey = await this.postDownloadTask(file_url, _args);
+        let _done_task = await this.service.task.triggerTask(taskey, 30);
+        //console.debug('media.js#syncNetMediafile2@_done_task', _done_task);
+        return _done_task._dest;
         // 还未有媒体。post the download task
-        
     }
 
     /**
@@ -336,6 +342,20 @@ class MediaService extends Service {
             _media.path,
             'copy'
         );
+        return taskey;
+    }
+
+    async postDownloadTask (url, _args) {
+        let taskey = this.service.task.calKey(url, JSON.stringify(_args));
+        await this.service.task.newTask(
+            'download '+url,
+            taskey,
+            '',
+            JSON.stringify(_args),
+            url,
+            'download'
+        );
+        return taskey;
     }
 
     async getCopyMediafileStream (_media, handler, _args) {

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-11 10:26:33
+ * @LastEditTime: 2020-03-12 15:35:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -46,7 +46,7 @@ class MediaController extends Controller {
             for (let t of targets) {
                 try {
                     let headers = t.headers? t.headers: {};
-                    let sign = await this.service.media.syncNetMediafile(t.url, _bucket, headers);
+                    let sign = await this.service.media.syncNetMediafile2(t.url, _bucket, headers);
                     signatures.push(sign);
                 }catch (e) {
                     console.debug('controller#media.js#SyncNetMedia@e',e);

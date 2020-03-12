@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-17 12:40:44
- * @LastEditTime: 2020-03-10 10:12:39
+ * @LastEditTime: 2020-03-12 22:38:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/task.js
@@ -56,7 +56,8 @@ class TaskController extends Controller {
 
     async test () {
         try {
-            this.ctx.service.task.postTask('aaa', 'ccc', 'hhh',  JSON.stringify(['aaa', 'bbb']), 'ccc', 'eee');
+            let {name, handler, params} = this.ctx.query;
+            this.ctx.service.task.newTask('1', 'kkkkey', '2',  '3', '4', '5');
         }catch (e) {
             console.debug(e);
         }

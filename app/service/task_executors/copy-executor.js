@@ -1,6 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2020-03-09 18:20:43
+ * @LastEditTime: 2020-03-12 15:40:05
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: /egg-media/app/service/task_executors/copy-executor.js
+ */
+/*
+ * @Author: your name
+ * @Date: 2020-03-09 18:20:43
  * @LastEditTime: 2020-03-12 12:49:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
