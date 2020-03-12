@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-01 08:21:54
- * @LastEditTime: 2020-03-11 13:30:02
+ * @LastEditTime: 2020-03-11 13:46:31
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/backend-console/uploadmeida.js
@@ -55,6 +55,7 @@ let postFile =  (req, f, boundary) => {
          * req.write('\r\n\r\n');
          */
 
+        /** 这个是正确的写法。操操操操操调试了一上午。fuckfuckfuckfuck～～～ */
         req.write('\r\n');
         
 

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-09 18:20:43
- * @LastEditTime: 2020-03-10 16:51:06
+ * @LastEditTime: 2020-03-12 12:49:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task_executors/CopyExecutor.js
@@ -37,22 +37,25 @@ class CopyExecutor {
             let result = await _h.exec();
 
             console.debug('task.js#execTask@result', result);
-            let dest = ''
+            // 
             if (typeof result == 'string') {
-                dest = result;
-            } else if (typeof result == 'object') {
-                dest = result.dest;
-            } else {
+                let tmp_dest = result;
+                result = {};
+                result.dest = tmp_dest;
+            } else if (typeof result.dest != 'string') {
                 throw 'unknown handler result!'
             }
-            console.debug('task.js#execTask@dest', dest);
-            if (dest == '' || (dest != 'opath' && !fs.existsSync(dest))) {
+
+            // executor 有权处理任何结果。
+            console.debug('task.js#execTask@dest', result.dest);
+            if (result.dest == '' || (result.dest != 'opath' && !fs.existsSync(result.dest))) {
                 throw 'handler'+ this._task.handler+' did not return a valid dest'
             }
 
             //let file_info = {};
-            if (dest == 'opath') {
-                dest = _media.path;
+            if (result.dest == 'opath') {
+                // 不需要处理，直接用就的原文件。
+                result.dest = _media.path;
                 //file_info.mime = _media.mime;
             } else {
                 /** 把输出文件搬到要使用的目录 **/
@@ -61,12 +64,12 @@ class CopyExecutor {
                 // 只计算出key，其他就算了。
                 let key = this._ctx.service.task.calKey(this._task.name, this._task.handler, this._task.params);
                 let save_path = this._ctx.service.bucket.fullBucketDir(_media) + 'cache/' + key //+ dest_extname;
-                fs.renameSync(dest, save_path);
-                dest = save_path;
-                
+                fs.renameSync(result.dest, save_path);
+                result.dest = save_path;
             }
-            this._ctx.service.task.updateTaskDest(this._task.key, dest);
+            //await this._ctx.service.task.updateTaskDest(this._task.key, dest);
             // save the dest to task
+            return result;
             
         } else {
             throw  'media <'+signature+'> is not exists';

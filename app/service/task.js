@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 15:01:49
- * @LastEditTime: 2020-03-10 16:38:10
+ * @LastEditTime: 2020-03-12 15:06:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task.js
@@ -74,8 +74,8 @@ class TaskService extends Service {
                 let CopyExecutor = require(__dirname+'/task_executors/'+_task.executor+'-executor');
                 let executor = new CopyExecutor(_task, this);
                 //1 set task processing
-                await executor.exec();
-                this.updateTaskDone(_task.key)
+                let res = await executor.exec();
+                this.updateTaskDone(_task.key, res);
                 return true;
             }else {
                 throw 'try time out of limit';
@@ -99,7 +99,7 @@ class TaskService extends Service {
         return false;
     }
     
-    async postTask (name, key, handler, params, src, exe, force = false) {
+    async newTask (name, key, handler, params, src, exe, force = false) {
         return await Task.upsert({
             name: name,
             key: key,
@@ -115,6 +115,69 @@ class TaskService extends Service {
             try: 0,
         });
     }
+
+    async triggerTask (taskey, timeout) {
+        // ask the agent to start the task.
+        let _task = await this.findTask(taskey);
+        let _ctx_this = this;
+        if (_task && _task.status != 'processing' 
+        && _task.try < this.app.config.task.try_limit) {
+
+            let ctx_this = this;
+            let waitTask = new Promise(async (resolve, reject) => {
+
+                let timer = 0;
+                let listener = {};
+                
+                listener.onTaskStatus = async (taskey) => {
+                    ctx_this.app.rmTasklistener(listener);
+                    if (timer) {
+                        clearTimeout(timer);
+                    }
+                    let _doneTask = await ctx_this.findTask(taskey);
+                    resolve(_doneTask);
+                }
+                ctx_this.app.addTasklistener(listener);
+
+                if (_task.status == 'err') {
+                    await ctx_this.resetTaskStatus(taskey);
+                }
+                ctx_this.app.messenger.sendToAgent('new_task', taskey);
+
+                if (timeout > 0) {
+                    timer = setTimeout( async () => {
+                        // 1 remove the listaner
+                        // 2 cleanTimer;
+                        // 3 check the task 
+                        ctx_this.app.rmTasklistener(listener);
+                        clearTimeout(timer);
+
+                        let _timeout_task = await _ctx_this.findTask(taskey);
+                        if (_task.status == 'processing') {
+                            reject({timeout:taskey});
+                        }else{
+                            resolve(_timeout_task);
+                        }
+                    }, timeout * 1000);
+                }else {
+                    reject({timeout:taskey})
+                }
+                
+            });
+
+            return await waitTask;
+        }else if (!_task){
+            throw 'can`t not find the task!';
+        }else if (!_task.status == 'processing') {
+            throw 'task had started';
+        }else if (_task.try >= this.app.config.task.try_limit) {
+            throw 'task try out limit';
+        }else {
+            throw 'unknonw err';
+        }
+    }
+
+    
     
     /*
     async execTask(_task) {
@@ -209,7 +272,7 @@ class TaskService extends Service {
             //_task._file_info = this.fileInfo2Obj(_task.file_info);
             _task._params = this.params2Obj(_task.params);
             _task._errmsg = this.errmsgInfo2Obj(_task.errmsg);
-            
+            _task._dest   = this.dest2Obj(_task.dest);
         }
         return _task;
     } 
@@ -252,8 +315,9 @@ class TaskService extends Service {
         }});
     }
 
-    async updateTaskDone(key) {
-        return await Task.update({errmsg:'', status:'done'}, {where:{
+    async updateTaskDone(key, dest) {
+        dest = this.dest2Json(dest);
+        return await Task.update({status:'done', dest: dest}, {where:{
             key:key
         }});
     }
@@ -317,6 +381,29 @@ class TaskService extends Service {
         */
     }
     
+    dest2Obj(dest) {
+        let _dest = {}
+        try {
+            _dest = (dest != "" ? JSON.parse(dest) : {});
+        }catch (e) {
+            console.debug('task.js#dest2Obj@e',e.stack);
+        }
+        return _dest;
+    }
+
+    dest2Json(_dest) {
+        try {
+            if (typeof _dest == 'object') {
+                return JSON.stringify(_dest);
+            }else {
+                return JSON.stringify({dest: _dest});
+            }
+        }catch (e) {
+            console.debug('task.js#dest2json@e', e);
+            return JSON.stringify({});
+        }
+    }
+
     errmsgInfo2Obj (err_msg) {
         let _err_msg = [];
         try{

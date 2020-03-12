@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-10 16:52:43
+ * @LastEditTime: 2020-03-12 15:02:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -106,6 +106,17 @@ class MediaService extends Service {
             console.debug('media.js#syncNetMediafile@e', e);
             throw e;
         }
+    }
+
+    async syncNetMediafile2 (file_url, _bucket, headers={}, sync=false) {
+        let context = this;
+        let _m = await this.getMediaFile(file_url);
+        if (_m) {
+            return {signature: _m.signature};
+        } 
+
+        // 还未有媒体。post the download task
+        
     }
 
     /**
@@ -239,7 +250,9 @@ class MediaService extends Service {
 
     }
     
-    
+    async insertMedia (insert) {
+        return await Media.upsert(insert);
+    }
     
     async getUploadMedia(bucket, page=1, perpage=20) {
         return await Media.findAll({
@@ -315,7 +328,7 @@ class MediaService extends Service {
 
     async postCopyTask (_media, handler, _args) {
         let taskey = this.service.task.calKey(_media.firstname, handler, JSON.stringify(_args));
-        await this.service.task.postTask(
+        await this.service.task.newTask(
             _media.firstname, 
             taskey, 
             handler, 
@@ -350,11 +363,9 @@ class MediaService extends Service {
      * @param {*} handler 
      * @param {*} _args 
      */
+    /*
     async TryToGetCopyMediafile(_media, handler, _args=[], sync=true) {
 
-        /**
-         * make the cacheDir first
-         */
         let context = this;
         return new Promise( async (resolve, reject) => {
 
@@ -362,7 +373,7 @@ class MediaService extends Service {
             let _task = await context.service.task.findTask(taskey);
             let timer = -1;
             let _tasklistener = null;
-            /* if no task try to post a new one */
+            // if no task try to post a new one 
             if (!_task || _task.try < context.app.config.task.try_limit ) {
                 try{
 
@@ -381,7 +392,7 @@ class MediaService extends Service {
                         //console.debug('media.js#tasklistener#onTaskStataus@task.status', on_task);
                         if (_on_task.status == 'done') {
                             //let info = context.service.task.fileInfo2Obj(_on_task.file_info);
-                            resolve({ file: _on_task.dest });
+                            resolve({ file: _on_task._dest.dest });
                             console.debug('media.js#tasklistener#onTaskStatus@task.status == done@task.dest & info', _on_task.dest);
                             if (timer != -1) {
                                 console.debug('media.js#tasklistener@clearTimeout', timer);
@@ -437,7 +448,7 @@ class MediaService extends Service {
                         console.debug('media.js#Timer@task.status', _task.status);
                         if (_task.status == 'done') {
                             //let info = context.service.task.fileInfo2Obj(_task.file_info);
-                            resolve({file:_task.dest});
+                            resolve({file:_task._dest.dest});
                         }else if (_task.status == 'err') {
                             //reject(_task.errmsg);
                             reject(context.service.task.getLastErrmsg(_task));
@@ -450,16 +461,28 @@ class MediaService extends Service {
                     }, 30*1000);
                 }
             }else if (_task.status == 'done') {
-                //let info = context.service.task.fileInfo2Obj(_task.file_info);
-                //console.debug('media.js#TryToGetCopy@task.status == done@task.dest & info', _task.dest, info);
-                resolve({file:_task.dest});
+                resolve({file:_task._dest.dest});
             } else {
                 console.debug('media.js#TryToGetCopy@task.status == err & task.try > try_limit');
                 reject(context.service.task.getLastErrmsg(_task));
             }
         });
     } 
-
+    */
+    async TryToGetCopyMediafile(_media, handler, _args=[], sync=true) {
+        let taskey = this.service.task.calKey(_media.firstname, handler, JSON.stringify(_args));
+        let _task = await this.service.task.findTask(taskey);
+        if (!_task) {
+            await this.postCopyTask(_media,handler, _args);
+        }
+        let _done_task = await this.service.task.triggerTask(taskey, sync?30:-1);
+        if (_done_task.status == 'done') {
+            return { file: _done_task._dest.dest };
+        } else {
+            throw this.service.task.getLastErrmsg(_done_task);
+        }
+    }
+    
     parseParameters (_path) {
         let params = _path.split('\/');
         for (let i=0; i<params.length; ++i) {
