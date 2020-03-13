@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-11 13:48:22
- * @LastEditTime: 2020-03-13 00:10:07
+ * @LastEditTime: 2020-03-13 13:13:46
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task_executors/donwload-executor.js
@@ -55,11 +55,20 @@
                         if (res.statusCode != 200) {
                             throw res.body;
                         }
-                        console.debug('download-executor.js#get@header', res.headers);
-                        
+
+                        console.debug('download-executor.js#get@header', res.headers['content-length']);
+
+                        let total_size = res.headers['content-length']?parseInt(res.headers['content-length']):0;
+                        let download_size = 0;
                         res.on('data', chunk => {
                             //console.debug('download-executor.js#on_data@chunk', chunk);
-                            console.debug('download-executor.js#on_data@chunk.length', chunk.length);
+                            //console.debug('download-executor.js#on_data@chunk.length', chunk.length);
+                            if (total_size) {
+                                download_size += chunk.length 
+                                let percent = Math.round((download_size / total_size) * 100);
+                                console.debug('download-executor.js#on_data@download-percent', percent);
+                                this._ctx.service.task.setTaskPercent(this._task.key, percent);
+                            }
                             ws.write(chunk);
                         });
                         res.on('end', ()=> {
