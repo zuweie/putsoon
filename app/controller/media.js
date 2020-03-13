@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-12 15:35:16
+ * @LastEditTime: 2020-03-13 09:22:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -219,6 +219,7 @@ class MediaController extends Controller {
         }
         if (result) {
             ctx.status = 200;
+            ctx.set('Content-length', result.length);
             ctx.set('Content-Type', result.mime);  
             ctx.body = result.stream;          
         }else{

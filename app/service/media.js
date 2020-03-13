@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-13 00:20:32
+ * @LastEditTime: 2020-03-13 09:17:01
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -363,13 +363,15 @@ class MediaService extends Service {
         let cache_file = this.service.bucket.fullBucketDir(_media)+'/cache/'+key;
         if (fs.existsSync(cache_file)) {
             let fileinfo = await FileType.fromFile(cache_file);
-            return {stream: fs.createReadStream(cache_file), mime: (fileinfo? fileinfo.mime: 'application/octet-stream')};
+            let stat = fs.statSync(cache_file);
+            return {stream: fs.createReadStream(cache_file), mime: (fileinfo? fileinfo.mime: 'application/octet-stream'), length:stat.size};
         }else {
             let result = await this.TryToGetCopyMediafile(_media, handler, _args);
             console.debug('media.js#getCopyMediafileStream@result', result);
             if (fs.existsSync(result.file)) {
                 let fileinfo = await FileType.fromFile(result.file);
-                return {stream: fs.createReadStream(result.file), mime: (fileinfo? fileinfo.mime: 'application/octet-stream')};
+                let stat = fs.statSync(result.stat);
+                return {stream: fs.createReadStream(result.file), mime: (fileinfo? fileinfo.mime: 'application/octet-stream'), length:stat.size};
             }else{
                 throw 'copy file not exists!jsjflaksfas';
             }
