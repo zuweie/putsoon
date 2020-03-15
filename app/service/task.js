@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 15:01:49
- * @LastEditTime: 2020-03-12 22:37:49
+ * @LastEditTime: 2020-03-14 10:37:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task.js
@@ -137,11 +137,13 @@ class TaskService extends Service {
                     let _doneTask = await ctx_this.findTask(taskey);
                     resolve(_doneTask);
                 }
+                
                 ctx_this.app.addTasklistener(listener);
 
                 if (_task.status == 'err') {
                     await ctx_this.resetTaskStatus(taskey);
                 }
+
                 ctx_this.app.messenger.sendToAgent('new_task', taskey);
 
                 if (timeout > 0) {
@@ -149,18 +151,20 @@ class TaskService extends Service {
                         // 1 remove the listaner
                         // 2 cleanTimer;
                         // 3 check the task 
+                        console.debug('task.js#triggerTask#timeout@timer', timer);
                         ctx_this.app.rmTasklistener(listener);
-                        clearTimeout(timer);
+                        //clearTimeout(timer);
 
                         let _timeout_task = await _ctx_this.findTask(taskey);
                         if (_task.status == 'processing') {
-                            reject({timeout:taskey});
+                            reject({taskey});
                         }else{
                             resolve(_timeout_task);
                         }
                     }, timeout * 1000);
                 }else {
-                    reject({timeout:taskey})
+                    // 不设置等待。马上返回当前正在处理的任务。
+                    resolve({taskey})
                 }
                 
             });
@@ -280,8 +284,8 @@ class TaskService extends Service {
     async findTaskByStatus (status) {
         let _tasks =  await Task.findAll({where:{status: status}});
         for (let _t of _tasks) {
-            _t._params = this.params2Obj(_task.params)
-            _t._err_msg = this.errmsgInfo2Obj(_task.errmsg);
+            _t._params = this.params2Obj(_t.params)
+            _t._errmsg = this.errmsgInfo2Obj(_t.errmsg);
         }
         return _tasks;
     }

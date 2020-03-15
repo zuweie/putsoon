@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-13 09:17:01
+ * @LastEditTime: 2020-03-14 09:20:42
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -119,9 +119,9 @@ class MediaService extends Service {
         _args.headers =headers;
         _args.bucket = _bucket.bucket;
         let taskey = await this.postDownloadTask(file_url, _args);
-        let _done_task = await this.service.task.triggerTask(taskey, 30);
+        let down_taskey = await this.service.task.triggerTask(taskey, -1);
         //console.debug('media.js#syncNetMediafile2@_done_task', _done_task);
-        return _done_task._dest;
+        return down_taskey
         // 还未有媒体。post the download task
     }
 
