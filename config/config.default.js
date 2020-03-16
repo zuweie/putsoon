@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-03-03 09:28:03
+ * @LastEditTime: 2020-03-16 14:33:46
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/config/config.default.js
@@ -67,7 +67,9 @@ module.exports = appInfo => {
   config.task = {
     try_limit : 10,
   }
-  
+  config.pulgin = {
+    prefix : 'donkey-plguin-',
+  }
   return {
     ...config,
     ...userConfig,

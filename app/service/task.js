@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 15:01:49
- * @LastEditTime: 2020-03-14 10:37:23
+ * @LastEditTime: 2020-03-16 14:07:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task.js
@@ -71,8 +71,8 @@ class TaskService extends Service {
             if (_task.try < this.app.config.task.try_limit) {
 
                 this.updateTaskStart(_task.key);
-                let CopyExecutor = require(__dirname+'/task_executors/'+_task.executor+'-executor');
-                let executor = new CopyExecutor(_task, this);
+                let Executor = require(__dirname+'/task_executors/'+_task.executor+'-executor');
+                let executor = new Executor(_task, this);
                 //1 set task processing
                 let res = await executor.exec();
                 this.updateTaskDone(_task.key, res);

@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-03-09 18:20:43
- * @LastEditTime: 2020-03-12 15:40:05
- * @LastEditors: your name
+ * @LastEditTime: 2020-03-16 14:34:17
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task_executors/copy-executor.js
  */
@@ -41,7 +41,7 @@ class CopyExecutor {
             
             console.debug('CopyExecutor.js#execTask@args', _args);
             let dest_dir = this._ctx.service.task.mkTmpDir();
-            let _h = require('donkey-plugin-' + handler)(_media.path, dest_dir, _args, this._ctx, this._task);
+            let _h = require(this._ctx.app.config.plugin.prefix+handler)(_media.path, dest_dir, _args, this._ctx, this._task);
             let result = await _h.exec();
 
             console.debug('task.js#execTask@result', result);
