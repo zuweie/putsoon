@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-03-16 14:33:46
+ * @LastEditTime: 2020-03-17 13:24:53
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/config/config.default.js
@@ -61,15 +61,21 @@ module.exports = appInfo => {
 
   config.bucket = {
     root:appInfo.baseDir+'/media_source/',
-    upload_guard : false
+    upload_guard : true
   };
 
   config.task = {
     try_limit : 10,
   }
-  config.pulgin = {
-    prefix : 'donkey-plguin-',
+  config.plugin = {
+    prefix : 'donkey-plugin-',
   }
+
+  config.token = {
+    upload_token_expireIn: 3600,
+    explose_token_expireIn: 30,
+  }
+  
   return {
     ...config,
     ...userConfig,

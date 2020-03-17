@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-09 18:20:43
- * @LastEditTime: 2020-03-16 14:34:17
+ * @LastEditTime: 2020-03-17 14:40:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task_executors/copy-executor.js
@@ -29,7 +29,7 @@ class CopyExecutor {
 
         let signature = this._task.name;
         let _media = await this._ctx.service.media.getMediaFile(signature);
-   
+
         if (_media) {
             
             if (!fs.existsSync(_media.path)) {
@@ -40,6 +40,7 @@ class CopyExecutor {
             let _args = this._task._params;
             
             console.debug('CopyExecutor.js#execTask@args', _args);
+            console.debug('CopyExecutor.js#execTask@plugin', this._ctx.app.config.plugin.prefix+handler);
             let dest_dir = this._ctx.service.task.mkTmpDir();
             let _h = require(this._ctx.app.config.plugin.prefix+handler)(_media.path, dest_dir, _args, this._ctx, this._task);
             let result = await _h.exec();
@@ -57,7 +58,7 @@ class CopyExecutor {
             // executor 有权处理任何结果。
             console.debug('task.js#execTask@dest', result.dest);
             if (result.dest == '' || (result.dest != 'opath' && !fs.existsSync(result.dest))) {
-                throw 'handler'+ this._task.handler+' did not return a valid dest'
+                throw 'handler <'+ this._task.handler+'> did not return a valid dest'
             }
 
             //let file_info = {};

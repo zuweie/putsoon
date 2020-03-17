@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-07 22:53:24
- * @LastEditTime: 2020-02-27 07:31:14
+ * @LastEditTime: 2020-03-17 12:48:44
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/middleware/verify_token.js
@@ -10,7 +10,7 @@
 module.exports = async function tokenverification(ctx, next) {
     if (ctx.app.config.bucket.upload_guard) {
         let token = ctx.request.query._token;
-        let result = await ctx.service.token.verifyToken(token);
+        let result = token? await ctx.service.token.verifyToken(token) : null;
         if (result) {
             return next();
         } else {

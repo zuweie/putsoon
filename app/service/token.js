@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:50:44
- * @LastEditTime: 2020-02-25 17:29:13
+ * @LastEditTime: 2020-03-17 12:23:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -16,43 +16,66 @@ const Token = require('../../database/sequelize_model')('token');
 
 class TokenService extends Service {
 
-    genUploadToken (user_id) {
+    async genToken (user_id, name, expireIn) {
 
         let ak = uniqueString();
         let sk = uniqueString();
         let data = {
-            name: 'uploadtoken',
+            name: name,
             user_id: user_id,
             ak: ak,
             sk: sk,
-            expireIn: 3600,
+            expireIn: expireIn
         }
 
-        Token.upsert(data, {where:{
+        await Token.upsert(data, {where:{
             user_id:user_id,
-            name:'uploadtoken',
+            name: name,
         }});
 
         return {ak, sk};
     }
 
-    updateSk (user_id) {
+    /*
+    async genExposeToken (user_id) {
+        let ak = uniqueString();
         let sk = uniqueString();
-        return Token.update({sk:sk}, {where:{
+        let data = {
+            name: 'exposetoken',
             user_id: user_id,
-            name: 'uploadtoken'
+            ak: ak,
+            sk: sk,
+            expireIn: this.app.config.token.expose_token_expireIn,
+        }
+
+        await Token.upsert (data, {where: {
+            user_id: user_id,
+            name:'exposetoken',
+        }});
+        return {ak, sk};
+    }
+    */
+
+    async updateSk (user_id, ak, token_name) {
+        let sk = uniqueString();
+        return await Token.update({sk:sk}, {where:{
+            user_id: user_id,
+            ak: ak,
+            name: token_name,
         }});
     }
 
-    getUploadToken (user_id) {
+    async getToken (user_id, token_name) {
 
-        return Token.findAll({where:{
+        return token_name? await Token.findAll({where:{
             user_id: user_id,
-            name: 'uploadtoken',
+            name: token_name,
+        }}) : await Token.findAll({where:{
+            user_id: user_id,
         }});
     }
 
-    deleteUploadToken(user_id, ids) {
+    deleteToken(user_id, ids) {
         return Token.destroy({where:{
             id: {
                 [Op.in]: ids
@@ -82,13 +105,22 @@ class TokenService extends Service {
         let decode = Buffer.from(token,'base64').toString();
         let exp = decode.split('&&');
         if (exp.length == 0) return false;
-        return {ak:exp[0], sk_hash:exp[1], timestamp:exp[2], bucket: exp[3]};
+        
+        let res = {};
+        res.ak = exp[0];
+        res.sk_hash = exp[1];
+        res.timestamp = exp[2];
+        res.payload = exp.slice(3, exp.length);
+        return res;
     }
 
-    implodeToken(ak,sk,bucket) {
+    implodeToken(ak,sk, ... elements) {
         let timestamp = Date.now();
         let encode = md5(''+timestamp + '&&' + sk);
-        let token = ak+'&&'+encode+'&&'+timestamp+'&&'+bucket;
+        let token = ak+'&&'+encode+'&&'+timestamp;
+        for (let e of elements) {
+            token += '&&' + e;
+        }
         return Buffer.from(token).toString('base64');
     }
 }

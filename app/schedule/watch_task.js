@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-14 09:46:44
- * @LastEditTime: 2020-03-14 10:37:42
+ * @LastEditTime: 2020-03-17 13:22:28
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/schedule/watch_task.js
@@ -12,7 +12,7 @@ const Subscription = require('egg').Subscription;
 class WatchTask extends Subscription {
     static get schedule() {
         return {
-            interval: '10s',
+            interval: '60s',
             type:'worker',
         };
     }

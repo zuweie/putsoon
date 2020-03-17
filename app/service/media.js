@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-14 09:20:42
+ * @LastEditTime: 2020-03-17 14:30:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -317,19 +317,21 @@ class MediaService extends Service {
         return del_count;
     }
 
-    async getMediaFileReadStream (signature) {
-        let _media = await this.getMediaFile(signature);
+    async getMediaFileReadStream (_media) {
         if (_media && fs.existsSync(_media.path)) {
-            return {stream: fs.readFileSync(_media.path), mime: _media.mime};
+            let stat = fs.statSync(_media.path);
+            return {stream: fs.readFileSync(_media.path), mime: _media.mime, length: stat.size};
         }
         return false;
     }
 
     async getMediaFile (signature) {
 
-        return await Media.findOne({where:{
-            [Op.or]: [{signature: signature}, {firstname_hash: md5(signature)}, {firstname_hash: signature}]
-        }});
+        let query_sql = 'SELECT Media.*, Buckets.is_private FROM Media LEFT OUTER JOIN Buckets ON Media.bucket = Buckets.bucket WHERE Media.signature = ? or Media.firstname_hash = ? or Media.firstname_hash = ? limit 1 offset 0';
+        let _medias = await sequelize.query(query_sql,{replacements:[signature, md5(signature), signature], type: sequelize.QueryTypes.SELECT});
+        //console.debug('media.js#getMediafile@_media', _media);
+        
+        return (_medias && _medias.length > 0) ? _medias[0]: null;
     }
 
     async postCopyTask (_media, handler, _args) {
@@ -370,7 +372,7 @@ class MediaService extends Service {
             console.debug('media.js#getCopyMediafileStream@result', result);
             if (fs.existsSync(result.file)) {
                 let fileinfo = await FileType.fromFile(result.file);
-                let stat = fs.statSync(result.stat);
+                let stat = fs.statSync(result.file);
                 return {stream: fs.createReadStream(result.file), mime: (fileinfo? fileinfo.mime: 'application/octet-stream'), length:stat.size};
             }else{
                 throw 'copy file not exists!jsjflaksfas';
@@ -492,7 +494,9 @@ class MediaService extends Service {
     } 
     */
     async TryToGetCopyMediafile(_media, handler, _args=[], sync=true) {
+
         let taskey = this.service.task.calKey(_media.firstname, handler, JSON.stringify(_args));
+        
         let _task = await this.service.task.findTask(taskey);
         if (!_task) {
             await this.postCopyTask(_media,handler, _args);
@@ -512,6 +516,7 @@ class MediaService extends Service {
                 params.splice(i, 1);
             }
         }
+        
         let process_data = {};
         let query = '/'+params[2];
         process_data._ = params[0];

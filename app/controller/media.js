@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-13 09:22:23
+ * @LastEditTime: 2020-03-17 13:18:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -33,13 +33,12 @@ class MediaController extends Controller {
         let bucket = '';
         if (ctx.app.config.bucket.upload_guard) {
             _token = this.service.token.explodeToken(ctx.request.query._token);
-            bucket = _token.bucket;
+            bucket = _token.payload[0];
         }else {
             bucket = ctx.request.query.bucket;
         }
-        
-        let _bucket = await ctx.service.bucket.getBucket(bucket);
 
+        let _bucket = bucket? await ctx.service.bucket.getBucket(bucket): null;
         if (_bucket) {
             let targets = ctx.request.body.targets;
             let signatures = [];
@@ -75,16 +74,16 @@ class MediaController extends Controller {
         const {ctx} = this;
         const upload_files = ctx.request.files;
         
-        let bucket = '';
+        let bucket = null;
         
         if (ctx.app.config.bucket.upload_guard) {
-            _token = this.service.token.explodeToken(ctx.request.query._token);
-            bucket = _token.bucket;
+            let _token = this.service.token.explodeToken(ctx.request.query._token);
+            bucket = _token.payload[0];
         }else{
             bucket = ctx.request.query.bucket;
         }
 
-        let _bucket = await ctx.service.bucket.getBucket(bucket);
+        let _bucket = bucket? await ctx.service.bucket.getBucket(bucket) : null;
         //console.debug('media.js#upload@bucket', _bucket);
         console.debug('media.js#upload@upload_files', upload_files);
         console.debug('media.js#upload@body', ctx.request.body);
@@ -135,8 +134,8 @@ class MediaController extends Controller {
          const {payload} = ctx;
          const {bucket, page, perpage} = ctx.request.query;
          let _bucket = await this.service.bucket.getBucket(bucket);
-         console.log('_bucket', _bucket);
-         console.log('payload', payload);
+         //console.log('_bucket', _bucket);
+         //console.log('payload', payload);
          if (_bucket) {
             if (_bucket.user_id == payload.user_id) {
                 let files = await this.service.media.getUploadMedia(bucket, page, perpage);
@@ -186,6 +185,7 @@ class MediaController extends Controller {
      * @request path string p1 media plugin parameter 1
      * @request path string p2 media plugin parameter 2
      * @request path string p3 media plugin parameter 3
+     * @request query string _token expose token
      * @response 200 base_response ok
      */
 
@@ -199,32 +199,52 @@ class MediaController extends Controller {
          */
         //let _media = await ctx.service.media.getMediaFile(params.signature);
         let result = false;
-        if (params.query != '') {
-            // 处理handler
-            try {
-                let _media = await this.service.media.getMediaFile(params.signature);
-                if (_media) {
-                    result = await ctx.service.media.getCopyMediafileStream(_media, params.media_handler, params.handler_parameters);
-                }else{
-                    ctx.status = 404;
+        let _media = await this.service.media.getMediaFile(params.signature);
+        if (_media) {
+
+            if (_media.is_private) {
+                // TODO : 验证token
+                let token = ctx.query._token;
+                //console.debug('controller#media.js@token');
+                //console.debug('controller#media.js@explode', await this.service.token.verifyToken(token));
+                if (!token || ! await this.service.token.verifyToken(token)) {
+                    ctx.status = 401;
+                    return;
                 }
-            }catch(e) {
-                console.log('controller#media.js#explose_file@e',e);
-                ctx.status = 400;
-                ctx.body = e;
-                return;
             }
-        }else{
-            result = await ctx.service.media.getMediaFileReadStream(params.signature);
-        }
-        if (result) {
-            ctx.status = 200;
-            ctx.set('Content-length', result.length);
-            ctx.set('Content-Type', result.mime);  
-            ctx.body = result.stream;          
-        }else{
+            
+            // 正常处理流程here
+            if (params.query != '') {
+
+                // 处理handler
+                try {
+                    result = await ctx.service.media.getCopyMediafileStream(_media, params.media_handler, params.handler_parameters);
+                }catch(e) {
+                    console.log('controller#media.js#explose_file@e',e);
+                    ctx.status = 400;
+                    ctx.body = e;
+                    return;
+                }
+            }else{
+                result = await ctx.service.media.getMediaFileReadStream(_media);
+                console.debug('controller#media.js@result', result);
+            }
+
+            if (result) {
+                ctx.status = 200;
+                ctx.set('Content-length', result.length);
+                ctx.set('Content-Type', result.mime);  
+                ctx.body = result.stream;          
+            }else{
+                ctx.status = 404;
+            }
+
+
+        }else {
             ctx.status = 404;
         }
+
+
     }
 } 
 

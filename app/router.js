@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-03-10 10:02:08
+ * @LastEditTime: 2020-03-17 11:49:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/router.js
@@ -33,11 +33,11 @@ module.exports = app => {
   router.del('/api/v1/bucket/delete', jwt, controller.bucket.del_buckets);
   router.post('/api/v1/bucket/sync', jwt, controller.bucket.sync_bucket);
   
-  router.post('/api/v1/token/upload', jwt, controller.token.gen_upload_token);
-  router.get('/api/v1/token/upload', jwt, controller.token.get_upload_token);
-  router.del('/api/v1/token/upload', jwt, controller.token.delete_upload_token);
-  router.post('/api/v1/token/upload/verify', controller.token.verify_upload_token);
-  router.post('/api/v1/token/upload/combine', controller.token.combine_upload_token);
+  router.post('/api/v1/token', jwt, controller.token.gen_token);
+  router.get('/api/v1/token', jwt, controller.token.get_token);
+  router.del('/api/v1/token', jwt, controller.token.delete_token);
+  router.post('/api/v1/token/verify', controller.token.verify_token);
+  router.post('/api/v1/token/combine', controller.token.combine_token);
 
   router.post('/api/v1/upload', vtoken, controller.media.upload);
   router.post('/api/v1/sync/net/media', vtoken, controller.media.syncNetMedia);

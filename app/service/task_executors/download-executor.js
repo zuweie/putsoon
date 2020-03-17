@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-11 13:48:22
- * @LastEditTime: 2020-03-16 14:52:45
+ * @LastEditTime: 2020-03-16 15:12:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task_executors/donwload-executor.js
@@ -38,7 +38,6 @@
             }else {
 
                 // default downloader
-
                 let cxt_this = this;
                 downloader = new Promise( async (resolve, reject) => {
                     
