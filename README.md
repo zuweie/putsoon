@@ -6,7 +6,7 @@
 - Nodejs 10.19.0 以上。
 
 ### 安装
-- git clone 或者[下载本项目](https://github.com/zuweie/donkey/archive/master.zip)
+- git clone 或者[下载本项目](https://github.com/zuweie/putsoon/archive/master.zip)
 - cd donkey
 - npm install --production
 
