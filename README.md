@@ -1,4 +1,4 @@
-# Donkey Cloud
+# putsoon
 这是一个小型的，轻量化的媒体资源服务器。基于 [egg.js](https://eggjs.org/) 技术实现，内置 Sqlite3 服务器，无需额外配置服务器，方便安装、使用。
 由于经常需要使用图片上传的图片的
 
