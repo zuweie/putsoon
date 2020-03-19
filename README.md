@@ -80,10 +80,11 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  ```
  
  - 使用 putsoon-plugin-ps 插件，
- 安装过后，不需要任何特殊代码，只需在url中添加相应的参数即可。下面以 putsoon-plugin-ps 的图片瘦身50%的功能为例子：
- 在浏览器中输入以下地址，即可展示按比例缩少 50% 的图片。
+ 安装过后，不需要任何特殊代码，只需在url中添加相应的参数即可。下面以 putsoon-plugin-ps 的图片瘦身50%的功能为例子,在浏览器中输入以下地址，即可展示按比例缩少 50% 的图片。
  
- http://${host}/e/{signature}/ps/slim/0.5
+ http://${host}:{port}/e/{signature}/ps/slim/0.5
+ 
+ 相关参数请参考：[putsoon-plugin-ps](https://github.com/zuweie/donkey-plugin-ps) 
  
  ### 相关API
  浏览器中键入 http://localhost:{port}/swagger-ui.html 即可获取详细的 api 信息
