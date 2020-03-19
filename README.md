@@ -1,4 +1,4 @@
-# putsoon
+# Putsoon
 这是一个小型的，轻量化的媒体资源服务器。基于 [egg.js](https://eggjs.org/) 技术实现，内置 Sqlite3 服务器，无需额外配置服务器，方便安装、使用。
 
 
@@ -80,14 +80,21 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  ```
  
  - 使用 putsoon-plugin-ps 插件，
- 安装过后，不需要任何特殊代码，只需在url中添加相应的参数即可。下面以 putsoon-plugin-ps 的图片瘦身50%的功能为例子,在浏览器中输入以下地址，即可展示按比例缩少 50% 的图片。
+ 安装过后，不需要任何特殊代码，只需在url中添加相应的参数即可。下面以插件 putsoon-plugin-ps 中的图片瘦身功能为例子,在浏览器中输入以下地址，即可展示按比例缩少 50% 的图片。
  
  http://${host}:{port}/e/{signature}/ps/slim/0.5
  
  相关参数请参考：[putsoon-plugin-ps](https://github.com/zuweie/donkey-plugin-ps) 
  
- ### 相关API
- 浏览器中键入 http://localhost:{port}/swagger-ui.html 即可获取详细的 api 信息
-  
+ ### 项目的api
+ putsoon 中提供一些相关的Api，供开发者开发使用。
+ 
+ - /api/v1/backend/login2，登录 putsoon。
+ 
+ method|params|content-type|return
+ --:|--:|--:|
+ POST|login,password|formData|accesstoken
+ 
+ 
  ## 完
   
