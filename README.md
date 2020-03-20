@@ -74,6 +74,12 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  ```
  - 上传限制开关
 在 ${root}/config/config.default.js 中，config.bucket.upload_guard 为上传限制开关，其值为 true 的时候，上传文件则需要 _token，否则上传失败。在config.bucket.upload_guard 为 false 时，上传文件没任何限制。
+
+```
+  config.bucket = {
+    upload_guard : true,
+  };
+```
  
  ### 插件功能
  putsoon 设计了插件功能，通过插件增加 putsoon 展示文件的能力。例如，通过 putsoon-plugin-ps 可以缩放、剪裁图片。
