@@ -60,6 +60,10 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
 - 展示文件
 浏览器中输入 http://localhost:{port}/e/{signature} 即可展示刚刚上传的文件。
 
+### 概念与术语
+- Bucket 存放媒体文件的对象，可以理解为一个文件夹，或者是一个目录。
+- Media 代表一个媒体文件，可以是图片，流媒体，或者一个普通文件。
+
  ### 项目配置
  - 存储文件的目录的配置：
  在 ${root}/config/config.default.js 中，config.bucket.root 即为上传文件的存储目录，可以根据实际情况来设置。
@@ -87,14 +91,8 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  相关参数请参考：[putsoon-plugin-ps](https://github.com/zuweie/donkey-plugin-ps) 
  
  ### 项目的api
- putsoon 中提供一些相关的Api，供开发者开发使用。
  
- - /api/v1/backend/login2，登录 putsoon。
- 
- method|params|content-type|return
- --:|--:|--:|
- POST|login,password|formData|accesstoken
- 
+ [传送门](http://59.110.224.162/swagger-ui.html)
  
  ## 完
   
