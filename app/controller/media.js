@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-17 13:18:48
+ * @LastEditTime: 2020-03-24 14:52:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -65,8 +65,8 @@ class MediaController extends Controller {
      * * 1 when success, return the signature of this file
      * * 2 expose this file, with params signature or the name of this file. see: /e/{signature}/p0/p1/p2 ...
      * @router POST /api/v1/upload
-     * @request query string _token upload token, IF the upload_guard is on, the api need upload token, see /api/v1/token/upload/combine     
-     * @request query string bucket IF the upload_guard is off, this api dose`t need upload token, but you must tall api which bucket you want to upload.
+     * @request formData string _token upload token, IF the upload_guard is on, the api need upload token, see /api/v1/token/upload/combine     
+     * @request formData string bucket IF the upload_guard is off, this api dose`t need upload token, but you must tall api which bucket you want to upload.
      * @request formData file *upload[0] upload file
      * @response 200 base_response ok
      */
@@ -77,10 +77,10 @@ class MediaController extends Controller {
         let bucket = null;
         
         if (ctx.app.config.bucket.upload_guard) {
-            let _token = this.service.token.explodeToken(ctx.request.query._token);
+            let _token = this.service.token.explodeToken(ctx.request.body._token);
             bucket = _token.payload[0];
         }else{
-            bucket = ctx.request.query.bucket;
+            bucket = ctx.request.body.bucket;
         }
 
         let _bucket = bucket? await ctx.service.bucket.getBucket(bucket) : null;
