@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-17 14:30:12
+ * @LastEditTime: 2020-03-26 11:07:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -270,12 +270,19 @@ class MediaService extends Service {
         });
     }
 
+
     async getAllUploadMedia(bucket) {
         return await Media.findAll({
             where: {
                 bucket: bucket
             }
         });
+    }
+
+    async getUserUploadMedia(user_id, page=1, perpage=20) {
+        let query_sql = 'SELECT Media.*, Buckets.user_id FROM Media LEFT OUTER JOIN Buckets ON Media.bucket = Buckets.bucket WHERE Buckets.user_id = ? LIMIT ? OFFSET ? ';
+        let _medias = await sequelize.query(query_sql,{replacements:[user_id, perpage, (page-1)*perpage], type: sequelize.QueryTypes.SELECT});
+        return _medias;
     }
 
     async delUploadMedia(media_ids, user_id) {

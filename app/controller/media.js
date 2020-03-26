@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-24 14:52:54
+ * @LastEditTime: 2020-03-26 11:02:24
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -123,7 +123,7 @@ class MediaController extends Controller {
      * @description show the files
      * @router GET /api/v1/files
      * @request header string *Authorization Bearer <access_token>
-     * @request query string *bucket bucket
+     * @request query string bucket bucket
      * @request query integer *page=1
      * @request query integer *perpage=20
      * @response 200 base_response ok
@@ -133,22 +133,24 @@ class MediaController extends Controller {
          const {ctx} = this;
          const {payload} = ctx;
          const {bucket, page, perpage} = ctx.request.query;
-         let _bucket = await this.service.bucket.getBucket(bucket);
-         //console.log('_bucket', _bucket);
-         //console.log('payload', payload);
-         if (_bucket) {
-            if (_bucket.user_id == payload.user_id) {
-                let files = await this.service.media.getUploadMedia(bucket, page, perpage);
-                ctx.status = 200;
-                ctx.body = ctx.helper.JsonFormat_ok(files);
+         if (bucket) {
+            let _bucket = await this.service.bucket.getBucket(bucket);
+            if (_bucket) {
+                if (_bucket.user_id == payload.user_id) {
+                    let files = await this.service.media.getUploadMedia(bucket, page, perpage);
+                    ctx.status = 200;
+                    ctx.body = ctx.helper.JsonFormat_ok(files);
+                 }else{
+                    ctx.status = 401;
+                 }
              }else{
-                ctx.status = 401;
+                 ctx.status = 404;
              }
-         }else{
-             ctx.status = 404;
+         }else {
+            let files = await this.service.media.getUserUploadMedia(payload.user_id, page, perpage);
+            ctx.status = 200;
+            ctx.body = ctx.helper.JsonFormat_ok(files);
          }
-
-
      }
 
     /**
