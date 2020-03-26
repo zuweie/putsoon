@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-01 08:21:54
- * @LastEditTime: 2020-03-11 13:46:31
+ * @LastEditTime: 2020-03-24 16:08:41
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/backend-console/uploadmeida.js
@@ -115,7 +115,7 @@ module.exports = async function (bucket, ... upload_file) {
             const req = http.request({
                 hostname: host,
                 port: port,
-                path: '/api/v1/upload?bucket='+bucket,
+                path: '/api/v1/upload',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data; boundary='+boundary,
@@ -130,6 +130,13 @@ module.exports = async function (bucket, ... upload_file) {
                     console.log(res_chunk);
                 });
             });
+
+            // 把参数写上
+            req.write("--" + boundary + '\r\n')
+            req.write('Content-Disposition: form-data; name="bucket"\r\n\r\n');
+            req.write(bucket);
+            req.write('\r\n');
+
             // upload file html 拼接。
             for (let f of upload_file) {
                 if (f && fs.existsSync(f)) {
