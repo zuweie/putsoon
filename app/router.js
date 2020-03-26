@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-03-17 11:49:55
+ * @LastEditTime: 2020-03-26 13:07:33
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/router.js
@@ -51,4 +51,8 @@ module.exports = app => {
   router.del('/api/v1/task/delete', jwt, controller.task.delete);
 
   router.get('/api/v1/test/task', controller.task.test);
+
+  router.get('/admin', async (ctx) => {
+    ctx.redirect('/public/putsoon-admin/index.html');
+  });
 };
