@@ -13,57 +13,68 @@ layui.use([
   ,upload = layui.upload
   ,api = layui.api
   ,u_bucket = ''
-  ,form = layui.form;
+  ,form = layui.form
+  ,user = null
+  ,bucket_name = null
+  ,requ_params = null;
 
-  var user = layui.data('donkey').login_user;
+  user = layui.data('donkey').login_user;
   console.log('-----user-----',user)
 
-  var loadTableData = function(){
-    table.render({
-      elem: '#media'
-      ,url:api.requ_url+'/api/v1/files'
-      ,headers:{Authorization:'Bearer '+user.access_token}
-      ,where:{bucket:'bucket-pic',page:1,perpage:10}
-      ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
-      ,defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
-        title: '提示'
-        ,layEvent: 'LAYTABLE_TIPS'
-        ,icon: 'layui-icon-tips'
-      }]
-      ,title: 'Bucket'
-      ,cellMinWidth: 80
-      ,cols: [[
-        {type: 'checkbox', fixed: 'left'}
-        //,{field:'id', title:'ID', fixed: 'left', unresize: true, sort: true}
-        
-        ,{field:'path', title:'path',width:80,
-          templet: function(d){
-            return '<div οnclick="show_img(this)" ><img src="'+d.path+'" alt="" width="50px" height="50px"></div>';
-          }}
-        //,{field:'firstname', title:'firstname'}
-        //,{field:'ext', title:'ext'}
-        //,{field:'query_params', title:'query_params', edit: 'text'}
-        ,{field:'signature', title:'signature',width:280}
-        //,{field:'file_hash', title:'file_hash'}
-        ,{field:'mime', title:'mime',width:110}
-        //,{field:'status', title:'status'}
-        ,{field:'bucket', title:'bucket'}
-        ,{field:'createdAt', title:'createdAt'}
-        //,{field:'updatedAt', title:'updatedAt'}
-        ,{fixed: 'right', title:'操作', toolbar: '#barDemo',width:130}
-      ]]
-      ,parseData: function(res){ //res 即为原始返回的数据
-        return {
-          "code": res.errcode, //解析接口状态
-          "msg": res.errmsg, //解析提示文本
-          "count": res.total, //解析数据长度
-          "data": res.data //解析数据列表
-        };
-    }
-      ,page: true
-      ,id: 'tb_media'
-    });
-  }()
+  //存在在bucket页面传bucket name 过来
+  bucket_name = UrlParam.paramValues("bucket_name");
+  console.log('-------bucket_name--------',bucket_name);
+  if(bucket_name!=null && bucket_name!=undefined){
+    requ_params = {bucket:bucket_name,page:1,perpage:10}
+  }else{
+    requ_params = {bucket:'bucket-pic',page:1,perpage:10}
+  }
+  
+
+  table.render({
+    elem: '#media'
+    ,url:api.requ_url+'/api/v1/files'
+    ,headers:{Authorization:'Bearer '+user.access_token}
+    ,where:requ_params
+    ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+    ,defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+      title: '提示'
+      ,layEvent: 'LAYTABLE_TIPS'
+      ,icon: 'layui-icon-tips'
+    }]
+    ,title: 'Bucket'
+    ,cellMinWidth: 80
+    ,cols: [[
+      {type: 'checkbox', fixed: 'left'}
+      //,{field:'id', title:'ID', fixed: 'left', unresize: true, sort: true}
+      
+      ,{field:'path', title:'path',width:80,
+        templet: function(d){
+          return '<div οnclick="show_img(this)" ><img src="'+d.path+'" alt="" width="50px" height="50px"></div>';
+        }}
+      //,{field:'firstname', title:'firstname'}
+      //,{field:'ext', title:'ext'}
+      //,{field:'query_params', title:'query_params', edit: 'text'}
+      ,{field:'signature', title:'signature',width:280}
+      //,{field:'file_hash', title:'file_hash'}
+      ,{field:'mime', title:'mime',width:110}
+      //,{field:'status', title:'status'}
+      ,{field:'bucket', title:'bucket'}
+      ,{field:'createdAt', title:'createdAt'}
+      //,{field:'updatedAt', title:'updatedAt'}
+      ,{fixed: 'right', title:'操作', toolbar: '#barDemo',width:130}
+    ]]
+    ,parseData: function(res){ //res 即为原始返回的数据
+      return {
+        "code": res.errcode, //解析接口状态
+        "msg": res.errmsg, //解析提示文本
+        "count": res.total, //解析数据长度
+        "data": res.data //解析数据列表
+      };
+  }
+    ,page: true
+    ,id: 'tb_media'
+  });
 
   //头工具栏事件
   table.on('toolbar(test)', function(obj){

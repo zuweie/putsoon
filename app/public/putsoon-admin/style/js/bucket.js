@@ -5,9 +5,9 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
    ,api = layui.api
    ,add_form = ''
    ,form = layui.form;
- 
+
    var user = layui.data('donkey').login_user;
-   console.log('-----user-----',user)
+    console.log('-----user-----',user)
  
    var loadTableData = function(){
      table.render({
@@ -86,7 +86,10 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
          delBucket({id:data.id})
          layer.close(index);
        });
-     } else if(obj.event === 'edit'){
+     } else if(obj.event === 'detail'){
+      $('#iframeMain', parent.document).attr('src','../../public/putsoon-admin/web/media.html?bucket_name=bucket-pic')
+      //parent.window.document.getElementById("iframeMain").src = '../../public/putsoon-admin/web/media.html';
+    }else if(obj.event === 'edit'){
        
      }
    });

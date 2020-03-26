@@ -91,16 +91,26 @@
     ,layer = layui.layer
     ,$ = layui.$
 
+    var user = layui.data('donkey').login_user;
+    console.log('-----user-----',user)
+
+    if(user==undefined){
+      //未登录
+      if (top.location.href != location.href) {
+          top.location.href ="../../putsoon-admin/web/login/login.html";
+      }
+    }
+
     $('dd>a').click(function(e){
-        e.preventDefault();
-        console.log(e);
-        let val = e.currentTarget.innerHTML;
-        let url = '';
-        switch(val){
-          case 'Media':url='./web/media.html';break
-          case 'Bucket':url='./web/bucket.html';break
-        }
-        $('#iframeMain').attr('src',url);
+      e.preventDefault();
+      console.log(e);
+      let val = e.currentTarget.innerHTML;
+      let url = '';
+      switch(val){
+        case 'Media':url='./web/media.html';break
+        case 'Bucket':url='./web/bucket.html';break
+      }
+      $('#iframeMain').attr('src',url);
     })
     
   });

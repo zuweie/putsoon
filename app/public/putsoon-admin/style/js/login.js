@@ -1,5 +1,5 @@
 layui.use(['jquery','api'], function(){
-   var api = api
+   var api = layui.api
    ,$ = layui.$
 
    console.log('---------------sdfsdfsdfdsf-----------------',api)
@@ -24,7 +24,7 @@ layui.use(['jquery','api'], function(){
         console.log('pwd-----',pwd);
         
          $.ajax({
-            url:'http://127.0.0.1:7001/api/v1/backend/login', //请求的url地址
+            url:api.requ_url+'/api/v1/backend/login', //请求的url地址
             dataType:"json", //返回格式为json
             data:{"login":name,"password":pwd}, //参数值
             type:"post", //请求方式
