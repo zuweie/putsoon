@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-26 11:02:24
+ * @LastEditTime: 2020-03-26 11:15:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -134,18 +134,9 @@ class MediaController extends Controller {
          const {payload} = ctx;
          const {bucket, page, perpage} = ctx.request.query;
          if (bucket) {
-            let _bucket = await this.service.bucket.getBucket(bucket);
-            if (_bucket) {
-                if (_bucket.user_id == payload.user_id) {
-                    let files = await this.service.media.getUploadMedia(bucket, page, perpage);
-                    ctx.status = 200;
-                    ctx.body = ctx.helper.JsonFormat_ok(files);
-                 }else{
-                    ctx.status = 401;
-                 }
-             }else{
-                 ctx.status = 404;
-             }
+            let files = await this.service.media.getUploadMedia(bucket, payload.user_id, page, perpage);
+            ctx.status = 200;
+            ctx.body = ctx.helper.JsonFormat_ok(files);
          }else {
             let files = await this.service.media.getUserUploadMedia(payload.user_id, page, perpage);
             ctx.status = 200;
