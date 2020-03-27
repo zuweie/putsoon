@@ -87,7 +87,7 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
          layer.close(index);
        });
      } else if(obj.event === 'detail'){
-      $('#iframeMain', parent.document).attr('src','../../public/putsoon-admin/web/media.html?bucket_name=bucket-pic')
+      $('#iframeMain', parent.document).attr('src','../../public/putsoon-admin/web/media.html?bucket_name='+data.bucket)
       //parent.window.document.getElementById("iframeMain").src = '../../public/putsoon-admin/web/media.html';
     }else if(obj.event === 'edit'){
        
