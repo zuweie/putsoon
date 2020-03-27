@@ -47,6 +47,6 @@ layui.define(['jquery','layer'],function(exports){ //提示：模块也可以依
       }
    };
   
-   //输出test接口
+   //输出api接口
    exports('api', api_obj);
 }); 
