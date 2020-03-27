@@ -27,7 +27,7 @@ layui.use([
   if(bucket_name!=null && bucket_name!=undefined){
     requ_params = {bucket:bucket_name,page:1,perpage:10}
   }else{
-    requ_params = {bucket:'bucket-pic',page:1,perpage:10}
+    requ_params = {page:1,perpage:10}
   }
   
 
@@ -50,7 +50,7 @@ layui.use([
       
       ,{field:'path', title:'path',width:80,
         templet: function(d){
-          return '<div οnclick="show_img(this)" ><img src="'+d.path+'" alt="" width="50px" height="50px"></div>';
+          return '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'" alt="" width="50px" height="50px"></div>';
         }}
       //,{field:'firstname', title:'firstname'}
       //,{field:'ext', title:'ext'}
@@ -68,8 +68,8 @@ layui.use([
       return {
         "code": res.errcode, //解析接口状态
         "msg": res.errmsg, //解析提示文本
-        "count": res.total, //解析数据长度
-        "data": res.data //解析数据列表
+        "count": res.data.count, //解析数据长度
+        "data": res.data.medias //解析数据列表
       };
   }
     ,page: true
@@ -116,7 +116,7 @@ layui.use([
         ,end: function (index, layero) {
             return false;
         }
-        ,content: '<div style="text-align:center"><img src="' + data.path + '" /></div>'
+        ,content: '<div style="text-align:center"><img src="/e/' + data.signature + '" /></div>'
       });
       layer.full(pic);
     } else if(obj.event === 'del'){

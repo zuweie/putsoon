@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-26 11:19:00
+ * @LastEditTime: 2020-03-27 12:41:50
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -261,9 +261,11 @@ class MediaService extends Service {
     }
     
     async getUploadMedia(bucket, user_id, page=1, perpage=20) {
+        let count_sql = "SELECT COUNT(Buckets.user_id FROM Media LEFT OUTER JOIN Buckets ON Media.bucket = Bucket.bucket WHERE Buckets.user_id = ? AND Media.bucket = ? ";
+        let count_medias = await sequelize.query(count_sql, {replacements:[user_id, bucket], type: sequelize.QueryTypes.SELECT});
         let query_sql = "SELECT Buckets.user_id, Media.* FROM Media LEFT OUTER JOIN Buckets ON Media.bucket = Buckets.bucket WHERE Buckets.user_id = ? AND Media.bucket = ? LIMIT ? OFFSET ? ";
         let _medias = await sequelize.query(query_sql,{replacements:[user_id, bucket, perpage, (page-1)*perpage], type: sequelize.QueryTypes.SELECT});
-        return _medias;
+        return {medias:_medias, count: count_medias[0].count};
     }
 
 
@@ -276,9 +278,15 @@ class MediaService extends Service {
     }
 
     async getUserUploadMedia(user_id, page=1, perpage=20) {
+
+        let count_sql = "SELECT COUNT(Buckets.user_id) as count FROM Media LEFT OUTER JOIN Buckets ON Media.bucket = Buckets.bucket WHERE Buckets.user_id = ?";
+        let count_medias = await sequelize.query(count_sql, {replacements:[user_id], type: sequelize.QueryTypes.SELECT});
+        //console.debug('media.js#getUploadMedia@count_medias', count_medias);
+
         let query_sql = 'SELECT Media.*, Buckets.user_id FROM Media LEFT OUTER JOIN Buckets ON Media.bucket = Buckets.bucket WHERE Buckets.user_id = ? LIMIT ? OFFSET ? ';
         let _medias = await sequelize.query(query_sql,{replacements:[user_id, perpage, (page-1)*perpage], type: sequelize.QueryTypes.SELECT});
-        return _medias;
+        //return _medias;
+        return {medias:_medias, count: count_medias[0].count};
     }
 
     async delUploadMedia(media_ids, user_id) {
