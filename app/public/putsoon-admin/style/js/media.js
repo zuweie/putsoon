@@ -25,12 +25,14 @@ layui.use([
   bucket_name = UrlParam.paramValues("bucket_name");
   console.log('-------bucket_name--------',bucket_name);
   if(bucket_name!=null && bucket_name!=undefined){
-    requ_params = {bucket:bucket_name,page:1,perpage:10}
+
+    console.log('11111111111')
+    requ_params = {bucket:bucket_name[0],'end':''}
   }else{
-    requ_params = {page:1,perpage:10}
+    requ_params = {'end':''}
   }
   
-
+  console.debug(requ_params);
   table.render({
     elem: '#media'
     ,url:api.requ_url+'/api/v1/files'

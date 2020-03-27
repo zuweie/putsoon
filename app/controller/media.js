@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-27 12:27:16
+ * @LastEditTime: 2020-03-27 13:46:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -132,13 +132,16 @@ class MediaController extends Controller {
      async show_files () {
          const {ctx} = this;
          const {payload} = ctx;
-         const {bucket, curr, limit} = ctx.request.query;
+         const {bucket, page, limit} = ctx.request.query;
+         //console.debug('controller.media.js#show_files@query', ctx.request.querystring);
+         //console.debug('controller.media.js#show_files@curr@limit@query', page, limit, ctx.request.query);
          if (bucket) {
-            let files = await this.service.media.getUploadMedia(bucket, payload.user_id, curr, limit);
+            let files = await this.service.media.getUploadMedia(bucket, payload.user_id, page, limit);
+            //console.debug('controller.media.js#show_files@files', files);
             ctx.status = 200;
             ctx.body = ctx.helper.JsonFormat_ok(files);
          }else {
-            let files = await this.service.media.getUserUploadMedia(payload.user_id, curr, limit);
+            let files = await this.service.media.getUserUploadMedia(payload.user_id, page, limit);
             ctx.status = 200;
             ctx.body = ctx.helper.JsonFormat_ok(files);
          }

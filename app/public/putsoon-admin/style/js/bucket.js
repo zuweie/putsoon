@@ -14,7 +14,7 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
        elem: '#bucket'
        ,url:api.requ_url+'/api/v1/bucket/show'
        ,headers:{Authorization:'Bearer '+user.access_token}
-       ,where:{page:1,perpage:10}
+       ,where:{'end':''}
        ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
        ,defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
          title: '提示'
@@ -38,8 +38,8 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
          return {
            "code": res.errcode, //解析接口状态
            "msg": res.errmsg, //解析提示文本
-           "count": res.total, //解析数据长度
-           "data": res.data //解析数据列表
+           "count": res.data.count, //解析数据长度
+           "data": res.data.buckets //解析数据列表
          };
      }
        ,page: true

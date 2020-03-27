@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:32:50
- * @LastEditTime: 2020-02-29 10:07:21
+ * @LastEditTime: 2020-03-27 14:04:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/bucket.js
@@ -9,10 +9,10 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const sequelize = require('sequelize');
 const Op = require('sequelize').Op;
 const Service = require('egg').Service;
 const Bucket  = require('../../database/sequelize_model')('bucket');
-
 class BucketService extends Service {
     
     async createBucket (bucket, desc, user_id, is_private=0) {
@@ -28,17 +28,25 @@ class BucketService extends Service {
         }
     }
 
-    showBuckets (user_id, page, perpage) {
-        return Bucket.findAll({
+    async showBuckets (user_id, page, perpage) {
+        let _count = await Bucket.findAll({
+            attributes:[ [sequelize.fn('COUNT', sequelize.col('user_id')), 'count']],
+            where:{user_id: user_id}
+        });
+        
+
+        let _buckets = await Bucket.findAll({
             where:{user_id: user_id},
             limit: perpage,
             offset: (page - 1)*perpage,
         });
+
+        return {buckets:_buckets,count: _count[0].get('count')};
     }
 
-    updateBucket(update_data,id, user_id ) {
+    async updateBucket(update_data,id, user_id ) {
       
-        return Bucket.update(update_data, {where:{
+        return await Bucket.update(update_data, {where:{
           user_id: user_id,
           id: id,
         }});
@@ -83,8 +91,8 @@ class BucketService extends Service {
         return delete_count;
     }
 
-    getBucket(b) {
-        return Bucket.findOne({where:{
+    async getBucket(b) {
+        return await Bucket.findOne({where:{
             bucket: b
         }});
     }
