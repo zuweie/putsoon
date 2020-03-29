@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-03-24 16:12:35
+ * @LastEditTime: 2020-03-29 11:32:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/config/config.default.js
@@ -68,7 +68,7 @@ module.exports = appInfo => {
     try_limit : 10,
   }
   config.plugin = {
-    prefix : 'donkey-plugin-',
+    prefix : 'putsoon-plugin-',
   }
 
   config.token = {

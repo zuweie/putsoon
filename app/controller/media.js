@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-27 13:46:10
+ * @LastEditTime: 2020-03-27 15:18:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -230,7 +230,11 @@ class MediaController extends Controller {
                 ctx.status = 200;
                 ctx.set('Content-length', result.length);
                 ctx.set('Content-Type', result.mime);  
-                ctx.body = result.stream;          
+                let stream = result.stream;
+                stream.on('close', async () => {
+                    console.debug('media.js#on_close', 'file stream close');
+                });
+                ctx.body = stream;      
             }else{
                 ctx.status = 404;
             }

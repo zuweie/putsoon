@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-03-27 13:19:51
+ * @LastEditTime: 2020-03-27 15:19:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -333,7 +333,7 @@ class MediaService extends Service {
     async getMediaFileReadStream (_media) {
         if (_media && fs.existsSync(_media.path)) {
             let stat = fs.statSync(_media.path);
-            return {stream: fs.readFileSync(_media.path), mime: _media.mime, length: stat.size};
+            return {stream: fs.createReadStream(_media.path), mime: _media.mime, length: stat.size};
         }
         return false;
     }
