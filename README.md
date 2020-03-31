@@ -169,7 +169,7 @@ Unauthorized
  
  例子:
  ```
- curl -X GET "http://59.110.224.162/api/v1/bucket/show?page=1&limit=20" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE"
+ curl -X GET "http://<yourhost>/api/v1/bucket/show?page=1&limit=20" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE"
  ```
  
  成功返回:
@@ -242,7 +242,7 @@ Unauthorized
  
  例子:
  ```
- curl -X POST "http://59.110.224.162/api/v1/upload?_token=MGIwMTcwMjJjYTRhNjg0MzdkMDNiYjhmNTQ3ZDZiYjEmJmQwMWRhOTBiMWQ2MGVkZWVlNGYzNmRhNmVlYWFlNDM3JiYxNTg1NjY5MDMxMjA5JiZiMQ%3D%3D" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "upload[0]=@Snip20200331_5.png;type=image/png"
+ curl -X POST "http://<yourhost>/api/v1/upload?_token=MGIwMTcwMjJjYTRhNjg0MzdkMDNiYjhmNTQ3ZDZiYjEmJmQwMWRhOTBiMWQ2MGVkZWVlNGYzNmRhNmVlYWFlNDM3JiYxNTg1NjY5MDMxMjA5JiZiMQ%3D%3D" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "upload[0]=@Snip20200331_5.png;type=image/png"
  ```
  成功返回:
  ```
