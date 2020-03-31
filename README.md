@@ -98,7 +98,71 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  ### 项目的api
  
- [传送门](http://59.110.224.162/swagger-ui.html)
+ - 1 登录putsoon
+ 
+ POST /api/v1/login2
+ 参数|描述|默认值|位置
+ --:|--:|--:|--:|
+ login|登录的账号|admin|body
+ password|登录的密码|123456|body
+ 
+ 例子:
+ ```
+ curl -X POST "http://<yourhost>/api/v1/backend/login2" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "login=admin&password=123456"
+ ```
+成功返回:
+```
+{
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NDcwNTYsImV4cCI6MTU4NTY4MzA1Nn0.Mi6AKlm2zGXKw83gyypfAqehCv198vDdLj6aRQrmpHI"
+  }
+}
+```
+失败返回:
+```
+Unauthorized
+```
+
+ - 2 创建 Bucket 
+ 
+ POST /api/v1/bucket/create
+ 
+ 参数|描述|默认值|位置
+ ---:|---:|---:|---:|
+ Authorization|Bearer <access_token>|无|header
+ bucket|要创建bucket的名字|无|body
+ is_private|bucket是否私有|false|body
+ describe|bucket的概要|空|body
+ 
+ 例子:
+ ```
+ curl -X POST "http://<yourhost>/api/v1/bucket/create" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE" -H "Content-Type: application/x-www-form-urlencoded" -d "bucket=pocket&is_private=0&describe=pocket"
+ ```
+ 成功返回:
+ ```
+ {
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": {
+    "name": "pocket",
+    "bucket_dir": "/path/of/the/bucket/"
+  }
+}
+ ```
+ 
+ 失败返回
+ ```
+ Unauthorized
+ ```
+ 
+ - 3 Bucket 列表
+ 
+ GET /api/v1/bucket/show
+ 
+  参数|描述|默认值|位置
+ ---:|---:|---:|---:|
  
  ## 完
   
