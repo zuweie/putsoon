@@ -39,7 +39,7 @@ npm run dev
 
 /* 启动调试环境，使用 9001 端口启动 */
 npm run dev -- --port=9001
-```
+``` 
 
 ### 快速开始
 - 由于时间关系，本人懒得做一个UI的后台，所以只实现命令行登录操作。
@@ -98,7 +98,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  ### 项目的api
  
- - 1 登录putsoon
+ - 1 登录 Putsoon。
  
  POST /api/v1/login2
  参数|描述|默认值|位置
@@ -125,7 +125,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
 Unauthorized
 ```
 
- - 2 创建 Bucket 
+ - 2 创建 Bucket 。
  
  POST /api/v1/bucket/create
  
@@ -157,12 +157,110 @@ Unauthorized
  Unauthorized
  ```
  
- - 3 Bucket 列表
+ - 3 Bucket 列表。
  
  GET /api/v1/bucket/show
  
   参数|描述|默认值|位置
  ---:|---:|---:|---:|
+ Authorization|Bearer <access_token>|无|header
+ page|页数|1|query
+ limit|每页数量|20|query
+ 
+ 例子:
+ ```
+ curl -X GET "http://59.110.224.162/api/v1/bucket/show?page=1&limit=20" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE"
+ ```
+ 
+ 成功返回:
+ ```
+ {
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": [
+    {
+      "id": 1,
+      "bucket": "b1",
+      "description": null,
+      "is_private": false,
+      "user_id": 1,
+      "createdAt": "2020-03-13T04:52:04.113Z",
+      "updatedAt": "2020-03-13T04:52:04.113Z"
+    },
+    {
+      "id": 2,
+      "bucket": "pocket",
+      "description": "pocket",
+      "is_private": false,
+      "user_id": 1,
+      "createdAt": "2020-03-31T14:09:05.084Z",
+      "updatedAt": "2020-03-31T14:09:05.084Z"
+    }
+  ]
+}
+ ```
+ 失败返回:
+ ```
+ Unauthorized
+ ```
+ 
+ - 4 删除 Bucket，此操作将会把 Bucket 下所有的文件，已经缓存清理干净，需要谨慎使用。
+ 
+ DELETE /api/v1/bucket/delete
+ 
+   参数|描述|默认值|位置
+ ---:|---:|---:|---:|
+ Authorization|Bearer <access_token>|无|header
+ id[]|Bucket 的 ID |无|body
+ 
+ 例子:
+ ```
+ curl -X DELETE "http://<yourhost>/api/v1/bucket/delete" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE" -H "Content-Type: application/x-www-form-urlencoded" -d "id[]=2&id[]=1"
+ ```
+ 
+ 成功返回:
+ ```
+ {
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": 0
+}
+ ```
+ 失败返回:
+ ```
+ Unauthorized
+ ```
+ 
+ - 5 upload 。
+ 
+ POST /api/v1/upload
+ 
+ 参数|描述|默认值|位置
+ ---:|---:|---:|---:|
+ _token|上传文件的 token 。当配置文件中的 upload_guard 为 true 时，则需要 _token 。若 upload_guard 为 false，则不需要此 token。 token 的合成： base64(ak+'&&'+md5(timestamp+'&&'+sk)+'&&'+timestamp+'&&'+bucket)，此处需要指明上传到哪个 bucket |无|body
+ bucket|当配置文件中 upload_guard 为 false 时，则不需要 _token 。但需要 bucket 参数，否则 putsoon 不明白文件将放在哪个 bucket |无|body
+ 
+ 例子:
+ ```
+ curl -X POST "http://59.110.224.162/api/v1/upload?_token=MGIwMTcwMjJjYTRhNjg0MzdkMDNiYjhmNTQ3ZDZiYjEmJmQwMWRhOTBiMWQ2MGVkZWVlNGYzNmRhNmVlYWFlNDM3JiYxNTg1NjY5MDMxMjA5JiZiMQ%3D%3D" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "upload[0]=@Snip20200331_5.png;type=image/png"
+ ```
+ 成功返回:
+ ```
+ {
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": {
+    "signature": "b63e0272baf2b782b6eedada3973a189"
+  }
+}
+ ```
+ 
+ 失败返回:
+ ```
+ 401 Unauthorized
+ or
+ 404
+ ```
  
  ## 完
   
