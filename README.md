@@ -1,5 +1,5 @@
 # Putsoon
-这是一个小型的，轻量化的媒体资源服务器。基于 [egg.js](https://eggjs.org/) 技术实现，内置 Sqlite3 服务器，无需额外配置服务器，方便安装、使用。
+这是一个小型的，轻量化的媒体资源服务器。基于 [egg.js](https://eggjs.org/) 技术实现，内置 Sqlite3 数据库，无需额外配置数据库，方便安装、使用。
 
 
 ### 项目要求 
@@ -96,7 +96,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  相关参数请参考：[putsoon-plugin-ps](https://github.com/zuweie/donkey-plugin-ps) 
  
- ### 项目的api
+ ### API 
  
  - 1 登录 Putsoon。
  
@@ -122,7 +122,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
 ```
 失败返回:
 ```
-Unauthorized
+401 Unauthorized
 ```
 
  - 2 创建 Bucket 。
@@ -154,7 +154,7 @@ Unauthorized
  
  失败返回
  ```
- Unauthorized
+ 401 Unauthorized
  ```
  
  - 3 Bucket 列表。
@@ -201,10 +201,12 @@ Unauthorized
  ```
  失败返回:
  ```
- Unauthorized
+ 401 Unauthorized
  ```
  
- - 4 删除 Bucket，此操作将会把 Bucket 下所有的文件，已经缓存清理干净，需要谨慎使用。
+ - 4 删除 Bucket
+ 
+ 此操作将会把 Bucket 下所有的文件，已经缓存清理干净，需要谨慎使用。
  
  DELETE /api/v1/bucket/delete
  
@@ -228,7 +230,7 @@ Unauthorized
  ```
  失败返回:
  ```
- Unauthorized
+ 401 Unauthorized
  ```
  
  - 5 upload 。
@@ -237,12 +239,12 @@ Unauthorized
  
  参数|描述|默认值|位置
  ---:|---:|---:|---:|
- _token|上传文件的 token 。当配置文件中的 upload_guard 为 true 时，则需要 _token 。若 upload_guard 为 false，则不需要此 token。 token 的合成： base64(ak+'&&'+md5(timestamp+'&&'+sk)+'&&'+timestamp+'&&'+bucket)，此处需要指明上传到哪个 bucket |无|body
+ _token|上传文件的 token 。当配置文件中的 upload_guard 为 true 时，则需要 _token 。若 upload_guard 为 false，则不需要 _token。 _token 的合成： base64(ak+'&&'+md5(timestamp+'&&'+sk)+'&&'+timestamp+'&&'+bucket)，此处需要指明上传到哪个 bucket |无|body
  bucket|当配置文件中 upload_guard 为 false 时，则不需要 _token 。但需要 bucket 参数，否则 putsoon 不明白文件将放在哪个 bucket |无|body
  
  例子:
  ```
- curl -X POST "http://<yourhost>/api/v1/upload?_token=MGIwMTcwMjJjYTRhNjg0MzdkMDNiYjhmNTQ3ZDZiYjEmJmQwMWRhOTBiMWQ2MGVkZWVlNGYzNmRhNmVlYWFlNDM3JiYxNTg1NjY5MDMxMjA5JiZiMQ%3D%3D" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "upload[0]=@Snip20200331_5.png;type=image/png"
+curl -X POST "http://<yourhost>/api/v1/upload" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "_token=Y2ZkZmY5N2RhMGU2ZTQ0MjQxYzVkYTBlOWM1ZmY4MTQmJjBlMmIzNjMxMjRiNTVkZGMxZjY1ZGFlZDg5YWNjMTk5JiYxNTg1NzAwMTY5ODUwJiZiMQ==" -F "upload[0]=@Snip20200326_6.png;type=image/png"
  ```
  成功返回:
  ```
@@ -261,6 +263,194 @@ Unauthorized
  or
  404
  ```
+ 
+ - 6 Bucket 下文件列表
+ 
+ GET /api/v1/files
+ 
+ 参数|描述|默认值|位置
+ ---:|---:|---:|---:|
+ Authorization|Bearer <access_token>|无|header
+ bucket|Bucket 的名字|无|query
+ page|页数|1|query
+ limit|每页显示数量|20|query
+ 
+ 例子:
+ ```
+ curl -X GET "http://<yourhost>/api/v1/files?bucket=b1&page%3D1=1&limit%3D20=20" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw"
+ ```
+ 
+ 成功返回:
+ ```
+ {
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": {
+    "medias": [
+      {
+        "user_id": 1,
+        "id": 26,
+        "firstname": "5",
+        "firstname_hash": "e4da3b7fbbce2345d7772b0674a318d5",
+        "ext": ".png",
+        "query_params": "",
+        "signature": "6c2e3759f307f1352862973a75850751",
+        "file_hash": "642835e2488800211aa04eea5b90d415",
+        "mime": "image/png",
+        "bucket": "b1",
+        "path": "/Users/zuweie/code/docker-lab/egg-media/media_source/b1-development/6c2e3759f307f1352862973a75850751.png",
+        "status": null,
+        "createdAt": "2020-03-11 05:16:06.183 +00:00",
+        "updatedAt": "2020-03-11 05:16:06.183 +00:00"
+      },
+      {
+        "user_id": 1,
+        "id": 27,
+        "firstname": "2",
+        "firstname_hash": "c81e728d9d4c2f636f067f89cc14862c",
+        "ext": ".png",
+        "query_params": "",
+        "signature": "c386db0cb530972e6e3b1ff6ddd43156",
+        "file_hash": "642835e2488800211aa04eea5b90d415",
+        "mime": "image/png",
+        "bucket": "b1",
+        "path": "/Users/zuweie/code/docker-lab/egg-media/media_source/b1-development/6c2e3759f307f1352862973a75850751.png",
+        "status": null,
+        "createdAt": "2020-03-11 05:16:06.193 +00:00",
+        "updatedAt": "2020-03-11 05:16:06.193 +00:00"
+      },
+      ...
+    ],
+    "count": 17
+  }
+}
+ ```
+ 失败返回:
+ ```
+ 401 Unauthorized
+ ```
+ 
+ - 6 删除文件
+ 
+ 参数|描述|默认值|位置
+ ---:|---:|---:|---:|
+ Authorization|Bearer <access_token>|无|header
+ id[]|文件的ID,可批量删除|无｜body
+ 
+ 例子:
+ ```
+curl -X DELETE "http://<yourhost>/api/v1/files" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "id%5B0%5D=52"
+ ```
+ 
+ 成功返回:
+ ```
+ {
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": 0
+}
+ ```
+ 
+ 失败返回
+ ```
+ 401 Unauthorized
+ ```
+ 
+ - 7 展示文件
+ GET /e/<signature>/p0/p1/p2/p3/p....
+  
+ 参数|描述|默认值|位置
+ ---:|---:|---:|---:|
+ signature|上传文件后返回的 signature 或者 文件名字 |无｜path
+ p0~pn|展示此文件时，附加的效果，例如缩少此文件的尺寸，改变宽和高。具体用法，请参照章节《插件》的用法|空|path
+ _token|
+ 
+ - 8 Ak 于 Sk 钥匙生成
+ 
+ Ak 与 Sk 用于合成各种 _token，_token 的合成请参考章节《token》。
+ 
+ 参数|描述|默认值|位置
+ ---:|---:|---:|---:|
+ Authorization|Bearer <access_token>|无|header
+ token_name|随便起个名字吧，用于区分 Ak 与 Sk 生成的 token |无|body
+ 
+ 例子:
+ ```
+ curl -X POST "http://<yourhost>/api/v1/token/" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "token_name=upload_token"
+ ```
+ 
+ 成功返回:
+ ```
+ {
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": {
+    "ak": "892d0dba1dff5ed2cacc6e64a1ee3d4b",
+    "sk": "1d36393adddec3f3f6460d90bc8c40ab"
+  }
+}
+ ```
+ 失败的返回:
+ ```
+ 401 Unauthorized
+ ```
+ 
+ - 9 Ak 与 Sk 的列表
+ 
+  参数|描述|默认值|位置
+ ---:|---:|---:|---:|
+ Authorization|Bearer <access_token>|无|header
+ token_name|过滤各种相关的 token 的名字，无则列出所有有效的 Ak 于 Sk |空|query
+ 
+ 例子:
+ ```
+ curl -X GET "http://<yourhost>/api/v1/token/" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw"
+ ```
+ 
+ 成功返回:
+ ```
+ {
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": [
+    {
+      "id": 4,
+      "name": "expose",
+      "ak": "13792fd566b869eb61ad63bb39c3172e",
+      "sk": "c95b2caaf005877523c9f4236f870f9d",
+      "user_id": 1,
+      "expireIn": 3600,
+      "createdAt": "2020-03-17T04:12:29.894Z",
+      "updatedAt": "2020-03-17T04:12:29.894Z"
+    },
+    {
+      "id": 5,
+      "name": "upload",
+      "ak": "cfdff97da0e6e44241c5da0e9c5ff814",
+      "sk": "e1b30b811f6b5a7354582fbd2bd7deb4",
+      "user_id": 1,
+      "expireIn": 3600,
+      "createdAt": "2020-03-17T04:50:21.926Z",
+      "updatedAt": "2020-03-17T04:50:21.926Z"
+    },
+    {
+      "id": 6,
+      "name": "upload_token",
+      "ak": "892d0dba1dff5ed2cacc6e64a1ee3d4b",
+      "sk": "1d36393adddec3f3f6460d90bc8c40ab",
+      "user_id": 1,
+      "expireIn": 3600,
+      "createdAt": "2020-04-01T01:09:11.635Z",
+      "updatedAt": "2020-04-01T01:09:11.635Z"
+    }
+  ]
+}
+ ```
+ 失败返回:
+ ```
+ 401 
+ ```
+ 
  
  ## 完
   
