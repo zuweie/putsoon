@@ -48,7 +48,8 @@ npm run dev -- --port=9001
 ``` 
 
 ### 快速开始
-- 启动 putsoon 后，在浏览器中输入 `http://127.0.0.1:{port}/admin`
+- 启动 putsoon 后，在浏览器中输入 `http://127.0.0.1:{port}/admin`，登录后台。
+- 启动 putsoon 后，在浏览器中输入 `http://127.0.0.1:{port}/swagger-ui.html`，直接使用 API 测试页面。
   
   
 ### 概念与术语
