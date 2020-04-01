@@ -42,29 +42,15 @@ npm run dev -- --port=9001
 ``` 
 
 ### 快速开始
-- 由于时间关系，本人懒得做一个UI的后台，所以只实现命令行登录操作。
-- 登录后台，登录账号与密码默认值为 admin / 123456 。
-```
-npm run login <account> <password>
-```
-- 建立一个 bucket，需要制定一个 bucket 的名字。
-```
-npm run bucket:create <bucket name (required)>
-```
-- 上传文件
-```
-npm run upload <bucket name(required)> <file1> <file2> <file3> ...
-```
-成功返回该文件的signature，signature 为文件的唯一标识。
-
-- 展示文件
-浏览器中输入 http://localhost:{port}/e/{signature} 即可展示刚刚上传的文件。
-
+- 启动 putsoon 后，在浏览器中输入 `http://127.0.0.1:{port}/admin`
+  
+  
 ### 概念与术语
 - Bucket 存放媒体文件的对象，可以理解为一个文件夹，或者是一个目录。
 - Media 代表一个媒体文件，可以是图片，流媒体，或者一个普通文件。
 
  ### 项目配置
+ 
  - 存储文件的目录的配置：
  在 ${root}/config/config.default.js 中，config.bucket.root 即为上传文件的存储目录，可以根据实际情况来设置。
  ```
@@ -74,12 +60,42 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  ```
  - 上传限制开关
 在 ${root}/config/config.default.js 中，config.bucket.upload_guard 为上传限制开关，其值为 true 的时候，上传文件则需要 _token，否则上传失败。在config.bucket.upload_guard 为 false 时，上传文件没任何限制。
-
 ```
   config.bucket = {
     upload_guard : true,
   };
 ```
+ - token 有效期
+ 在 ${root}/config/config.default.js 中，config.token.expireIn 为 token 有效期的默认值，单位为秒。
+ ```
+   config.token = {
+    expireIn: 3600,
+  }
+ ```
+ 
+ ### Token 生成与使用
+ - 在 putsoon 中有两个地方使用到token。
+    - 当配置文件中的 upload_guard 为 true 时，上传文件需要 upload token。
+    - 当要展示一个文件，其所属的 Bucket 为 private 的时候，展示这个文件的时候需要 expose token。
+ 
+ - 生成 upload token 的 Ak 与 Sk
+    - 登录后台操作，点击生成 Ak 与 Sk。
+    - 输入upload 与 有效期，空则为 1 小时有效期。点击确定即可生成 upload 的 Ak 与 Sk。
+ 
+ - 生成 expose token 的 Ak 与 Sk
+    - 登录后台操作，点击生成 Ak 与 Sk。
+    - 输入expose 与 有效期，空则为 1 小时有效期。点击确定即可生成 expose 的 Ak 与 Sk。
+    
+ - 合成 upload token
+    - 找到 upload token 的 Ak 与 Sk。
+    - 在业务服务器端使用代码合成，然后返回前端：`base64(ak+'&&'+md5(timestamp+'&&'+sk)+'&&'+timestamp+'&&'+<bucket>)`。
+    - 生成upload token 的时候需要指定 upload 的 bucket。否则上传文件传入的 _token 不能告诉 putsoon 要将文件放入哪个 bucket。
+    - upload token 的默认有效期在配置文件设置，参考配置文件设置章节。
+    
+ - 合成 expose token
+    - 找到 expose token 的 Ak 与 Sk。
+    - 在业务服务器端使用代码合成，然后返回前端：`base64(ak+'&&'+md5(timestamp+'&&'+sk)+'&&'+timestamp)`。
+    - expose token 的默认有效期在配置文件中设置，参考配置文件设置章节。
  
  ### 插件功能
  putsoon 设计了插件功能，通过插件增加 putsoon 展示文件的能力。例如，通过 putsoon-plugin-ps 可以缩放、剪裁图片。
@@ -96,7 +112,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  相关参数请参考：[putsoon-plugin-ps](https://github.com/zuweie/donkey-plugin-ps) 
  
- ### API 
+ ### PUTSOON API 
  
  - **1 登录 Putsoon**
  
@@ -108,7 +124,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  例子:
  ```
- curl -X POST "http://<yourhost>/api/v1/backend/login2" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "login=admin&password=123456"
+ curl -X POST "http://{yourhost}/api/v1/backend/login2" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "login=admin&password=123456"
  ```
 成功返回:
 ```
@@ -138,7 +154,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  例子:
  ```
- curl -X POST "http://<yourhost>/api/v1/bucket/create" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE" -H "Content-Type: application/x-www-form-urlencoded" -d "bucket=pocket&is_private=0&describe=pocket"
+ curl -X POST "http://{yourhost}/api/v1/bucket/create" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE" -H "Content-Type: application/x-www-form-urlencoded" -d "bucket=pocket&is_private=0&describe=pocket"
  ```
  成功返回:
  ```
@@ -169,7 +185,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  例子:
  ```
- curl -X GET "http://<yourhost>/api/v1/bucket/show?page=1&limit=20" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE"
+ curl -X GET "http://{yourhost}/api/v1/bucket/show?page=1&limit=20" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE"
  ```
  
  成功返回:
@@ -217,7 +233,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  例子:
  ```
- curl -X DELETE "http://<yourhost>/api/v1/bucket/delete" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE" -H "Content-Type: application/x-www-form-urlencoded" -d "id[]=2&id[]=1"
+ curl -X DELETE "http://{yourhost}/api/v1/bucket/delete" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU2NjM2NjMsImV4cCI6MTU4NTY5OTY2M30.Ghtj_IKdoq22dy--Gl4Xoi0ahJItRb7afBY7gPUnzTE" -H "Content-Type: application/x-www-form-urlencoded" -d "id[]=2&id[]=1"
  ```
  
  成功返回:
@@ -239,12 +255,12 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  参数|描述|默认值|位置
  ---:|---:|---:|---:|
- _token|上传文件的 token 。当配置文件中的 upload_guard 为 true 时，则需要 _token 。若 upload_guard 为 false，则不需要 _token。 _token 的合成： base64(ak+'&&'+md5(timestamp+'&&'+sk)+'&&'+timestamp+'&&'+bucket)，此处需要指明上传到哪个 bucket |无|body
- bucket|当配置文件中 upload_guard 为 false 时，则不需要 _token 。但需要 bucket 参数，否则 putsoon 不明白文件将放在哪个 bucket |无|body
+ _token|上传文件的 token，当配置文件中的 upload_guard 为 true 时，则需要 _token。若 upload_guard 为 false，则不需要 _token。|无|body
+ bucket|当配置文件中 upload_guard 为 false 时，则不需要 _token。但需要 bucket 参数，否则 putsoon 不明白文件将放在哪个 bucket。|无|body
  
  例子:
  ```
-curl -X POST "http://<yourhost>/api/v1/upload" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "_token=Y2ZkZmY5N2RhMGU2ZTQ0MjQxYzVkYTBlOWM1ZmY4MTQmJjBlMmIzNjMxMjRiNTVkZGMxZjY1ZGFlZDg5YWNjMTk5JiYxNTg1NzAwMTY5ODUwJiZiMQ==" -F "upload[0]=@Snip20200326_6.png;type=image/png"
+curl -X POST "http://{yourhost}/api/v1/upload" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "_token=Y2ZkZmY5N2RhMGU2ZTQ0MjQxYzVkYTBlOWM1ZmY4MTQmJjBlMmIzNjMxMjRiNTVkZGMxZjY1ZGFlZDg5YWNjMTk5JiYxNTg1NzAwMTY5ODUwJiZiMQ==" -F "upload[0]=@Snip20200326_6.png;type=image/png"
  ```
  成功返回:
  ```
@@ -277,7 +293,7 @@ curl -X POST "http://<yourhost>/api/v1/upload" -H "accept: application/json" -H 
  
  例子:
  ```
- curl -X GET "http://<yourhost>/api/v1/files?bucket=b1&page%3D1=1&limit%3D20=20" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw"
+ curl -X GET "http://{yourhost}/api/v1/files?bucket=b1&page%3D1=1&limit%3D20=20" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw"
  ```
  
  成功返回:
@@ -339,7 +355,7 @@ curl -X POST "http://<yourhost>/api/v1/upload" -H "accept: application/json" -H 
  
  例子:
  ```
-curl -X DELETE "http://<yourhost>/api/v1/files" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "id%5B0%5D=52"
+curl -X DELETE "http://{yourhost}/api/v1/files" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "id%5B0%5D=52"
  ```
  
  成功返回:
@@ -373,10 +389,11 @@ curl -X DELETE "http://<yourhost>/api/v1/files" -H "accept: application/json" -H
  ---:|---:|---:|---:|
  Authorization|Bearer <access_token>|无|header
  token_name|随便起个名字吧，用于区分 Ak 与 Sk 生成的 token |无|body
+ token_expireIn|token的有效期，默认 1 小时，秒为单位|3600|body
  
  例子:
  ```
- curl -X POST "http://<yourhost>/api/v1/token/" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "token_name=upload_token"
+ curl -X POST "http://{yourhost}/api/v1/token/" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "token_name=upload_token"
  ```
  
  成功返回:
@@ -400,11 +417,11 @@ curl -X DELETE "http://<yourhost>/api/v1/files" -H "accept: application/json" -H
   参数|描述|默认值|位置
  ---:|---:|---:|---:|
  Authorization|Bearer <access_token>|无|header
- token_name|过滤各种相关的 token 的名字，无则列出所有有效的 Ak 于 Sk |空|query
+ token_name|过滤各种相关的 token 的名字，无则列出所有有效的 Ak 与 Sk |空|query
  
  例子:
  ```
- curl -X GET "http://<yourhost>/api/v1/token/" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw"
+ curl -X GET "http://{yourhost}/api/v1/token/" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw"
  ```
  
  成功返回:
@@ -451,16 +468,16 @@ curl -X DELETE "http://<yourhost>/api/v1/files" -H "accept: application/json" -H
  401 Unauthorized
  ```
  
- - **11 删除 Ak 于 Sk**
+ - **11 删除 Ak 与 Sk**
  
  参数|描述|默认值|位置
  ---:|---:|---:|---:|
  Authorization|Bearer <access_token>|无|header
- id[]:|Ak 于 Sk 的ID | 无 | body
+ id[]:|Ak 与 Sk 的ID | 无 | body
  
  例子:
  ```
- curl -X DELETE "http://<yourhost>/api/v1/token/" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "id[]=10"
+ curl -X DELETE "http://{yourhost}/api/v1/token/" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "id[]=10"
  ```
  
 成功返回:
