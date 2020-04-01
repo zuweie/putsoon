@@ -321,7 +321,7 @@ curl -X POST "http://{yourhost}/api/v1/upload" -H "accept: application/json" -H 
         "file_hash": "642835e2488800211aa04eea5b90d415",
         "mime": "image/png",
         "bucket": "b1",
-        "path": "/Users/zuweie/code/docker-lab/egg-media/media_source/b1-development/6c2e3759f307f1352862973a75850751.png",
+        "path": "/path/of/file",
         "status": null,
         "createdAt": "2020-03-11 05:16:06.183 +00:00",
         "updatedAt": "2020-03-11 05:16:06.183 +00:00"
@@ -337,7 +337,7 @@ curl -X POST "http://{yourhost}/api/v1/upload" -H "accept: application/json" -H 
         "file_hash": "642835e2488800211aa04eea5b90d415",
         "mime": "image/png",
         "bucket": "b1",
-        "path": "/Users/zuweie/code/docker-lab/egg-media/media_source/b1-development/6c2e3759f307f1352862973a75850751.png",
+        "path": "/path/of/the/file",
         "status": null,
         "createdAt": "2020-03-11 05:16:06.193 +00:00",
         "updatedAt": "2020-03-11 05:16:06.193 +00:00"
