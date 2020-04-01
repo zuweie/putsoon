@@ -98,7 +98,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  
  ### API 
  
- - 1 登录 Putsoon。
+ - **1 登录 Putsoon**
  
  POST /api/v1/login2
  参数|描述|默认值|位置
@@ -125,7 +125,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
 401 Unauthorized
 ```
 
- - 2 创建 Bucket 。
+ - **2 创建 Bucket**
  
  POST /api/v1/bucket/create
  
@@ -157,7 +157,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  401 Unauthorized
  ```
  
- - 3 Bucket 列表。
+ - **3 Bucket 列表**
  
  GET /api/v1/bucket/show
  
@@ -204,7 +204,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  401 Unauthorized
  ```
  
- - 4 删除 Bucket
+ - **4 删除 Bucket**
  
  此操作将会把 Bucket 下所有的文件，已经缓存清理干净，需要谨慎使用。
  
@@ -233,7 +233,7 @@ npm run upload <bucket name(required)> <file1> <file2> <file3> ...
  401 Unauthorized
  ```
  
- - 5 upload 。
+ - **5 upload 文件**
  
  POST /api/v1/upload
  
@@ -264,7 +264,7 @@ curl -X POST "http://<yourhost>/api/v1/upload" -H "accept: application/json" -H 
  404
  ```
  
- - 6 Bucket 下文件列表
+ - **6 Bucket 下文件列表**
  
  GET /api/v1/files
  
@@ -330,7 +330,7 @@ curl -X POST "http://<yourhost>/api/v1/upload" -H "accept: application/json" -H 
  401 Unauthorized
  ```
  
- - 6 删除文件
+ - **7 删除文件**
  
  参数|描述|默认值|位置
  ---:|---:|---:|---:|
@@ -356,16 +356,16 @@ curl -X DELETE "http://<yourhost>/api/v1/files" -H "accept: application/json" -H
  401 Unauthorized
  ```
  
- - 7 展示文件
+ - **8 展示文件**
  GET /e/<signature>/p0/p1/p2/p3/p....
   
  参数|描述|默认值|位置
  ---:|---:|---:|---:|
  signature|上传文件后返回的 signature 或者 文件名字 |无｜path
  p0~pn|展示此文件时，附加的效果，例如缩少此文件的尺寸，改变宽和高。具体用法，请参照章节《插件》的用法|空|path
- _token|
+ _token|当文件在的 bucket 为私有的时候，则需要 expose token，_token 的具体合成办法参照 《token》空|query 
  
- - 8 Ak 于 Sk 钥匙生成
+ - **9 Ak 于 Sk 生成**
  
  Ak 与 Sk 用于合成各种 _token，_token 的合成请参考章节《token》。
  
@@ -395,7 +395,7 @@ curl -X DELETE "http://<yourhost>/api/v1/files" -H "accept: application/json" -H
  401 Unauthorized
  ```
  
- - 9 Ak 与 Sk 的列表
+ - **10 Ak 与 Sk 的列表**
  
   参数|描述|默认值|位置
  ---:|---:|---:|---:|
@@ -448,9 +448,34 @@ curl -X DELETE "http://<yourhost>/api/v1/files" -H "accept: application/json" -H
  ```
  失败返回:
  ```
- 401 
+ 401 Unauthorized
  ```
  
+ - **11 删除 Ak 于 Sk**
  
+ 参数|描述|默认值|位置
+ ---:|---:|---:|---:|
+ Authorization|Bearer <access_token>|无|header
+ id[]:|Ak 于 Sk 的ID | 无 | body
+ 
+ 例子:
+ ```
+ curl -X DELETE "http://<yourhost>/api/v1/token/" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "id[]=10"
+ ```
+ 
+成功返回:
+```
+{
+  "errcode": 0,
+  "errmsg": "err-ok",
+  "data": 0
+}
+```
+
+失败返回:
+```
+401 Unauthorized
+```
+
  ## 完
   
