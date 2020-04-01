@@ -379,7 +379,7 @@ curl -X DELETE "http://{yourhost}/api/v1/files" -H "accept: application/json" -H
  ```
  
  - **8 展示文件**
- GET /e/<signature>/p0/p1/p2/p3/p....
+ GET /e/{signature}/p0/p1/p2/p3/p....
   
  参数|描述|默认值|位置
  ---:|---:|---:|---:|
