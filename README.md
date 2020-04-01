@@ -357,11 +357,11 @@ curl -X POST "http://{yourhost}/api/v1/upload" -H "accept: application/json" -H 
  参数|描述|默认值|位置
  ---:|---:|---:|---:|
  Authorization|Bearer <access_token>|无|header
- id[]|文件的ID,可批量删除|无｜body
+ id[]|文件的ID,可批量删除|无|body
  
  例子:
  ```
-curl -X DELETE "http://{yourhost}/api/v1/files" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "id%5B0%5D=52"
+curl -X DELETE "http://{yourhost}/api/v1/files" -H "accept: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwibmlja25hbWUiOiJEb25rZXkiLCJ1c2VyX2lkIjoxLCJpYXQiOjE1ODU3MDAxMjMsImV4cCI6MTU4NTczNjEyM30.QUJNze2Zx8U6nHZlVGdlD0_N854ZSuyxj6ZpxJvqvMw" -H "Content-Type: application/x-www-form-urlencoded" -d "id[]=52"
  ```
  
  成功返回:
