@@ -383,9 +383,9 @@ curl -X DELETE "http://{yourhost}/api/v1/files" -H "accept: application/json" -H
   
  参数|描述|默认值|位置
  ---:|---:|---:|---:|
- signature|上传文件后返回的 signature 或者 文件名字 |无｜path
- p0~pn|展示此文件时，附加的效果，例如缩少此文件的尺寸，改变宽和高。具体用法，请参照章节《插件》的用法|空|path
- _token|当文件在的 bucket 为私有的时候，则需要 expose token，_token 的具体合成办法参照 《token》空|query 
+ signature|上传文件后返回的 signature 或者 文件名字 |无|path
+ p0~pn|展示此文件时，附加的效果，例如缩少此文件的尺寸，改变宽和高。具体用法，请参照章节[《插件》]()的用法|空|path
+ _token|当文件在的 bucket 为私有的时候，则需要 expose token，_token 的具体合成办法参照章节 [《token》]()|空|query 
  
  - **9 Ak 于 Sk 生成**
  
