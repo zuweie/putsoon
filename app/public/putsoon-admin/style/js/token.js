@@ -12,7 +12,7 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
    var loadTableData = function(){
      table.render({
        elem: '#bucket'
-       ,url:api.requ_url+'/api/v1/bucket/show'
+       ,url:api.requ_url+'/api/v1/token'
        ,headers:{Authorization:'Bearer '+user.access_token}
        ,where:{'end':''}
        ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
@@ -26,20 +26,19 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
        ,cols: [[
          {type: 'checkbox', fixed: 'left'}
          ,{field:'id', title:'ID', fixed: 'left', unresize: true, sort: true}
-         ,{field:'user_id', title:'user_id',sort: true}
-         ,{field:'bucket', title:'bucket', edit: 'text'}
-         ,{field:'description', title:'description', edit: 'text'}
-         ,{field:'is_private', title:'is_private',templet: '#is_private', unresize: true}
-         ,{field:'createdAt', title:'createdAt'}
-         ,{field:'updatedAt', title:'updatedAt'}
+         ,{field:'name', title:'token name', fixed: 'right'}
+         ,{field:'ak', title:'ak', fixed: 'right'}
+         ,{field:'sk', title:'sk',fixed:'right'}
+         ,{field:'expireIn', title:'expireIn', fixed: 'right'}
          ,{fixed: 'right', title:'操作', toolbar: '#barDemo'}
        ]]
        ,parseData: function(res){ //res 即为原始返回的数据
+        console.debug('token.js@res', res);
          return {
            "code": res.errcode, //解析接口状态
            "msg": res.errmsg, //解析提示文本
            "count": res.data.count, //解析数据长度
-           "data": res.data.buckets //解析数据列表
+           "data": res.data.tokens //解析数据列表
          };
      }
        ,page: true
@@ -83,12 +82,13 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
      if(obj.event === 'del'){
        layer.confirm('真的删除行么', function(index){
          obj.del();
-         delBucket({id:[data.id]})
+         //delBucket({id:data.id})
+         delAkSk({id:[data.id]});
          layer.close(index);
        });
      } else if(obj.event === 'detail'){
-      $('#iframeMain', parent.document).attr('src','../../public/putsoon-admin/web/media.html?bucket_name='+data.bucket)
-      //parent.window.document.getElementById("iframeMain").src = '../../public/putsoon-admin/web/media.html';
+      console.log('tokenjs @ data', data);
+      $('#iframeMain', parent.document).attr('src','../../public/putsoon-admin/web/token_detail.html?name='+data.name+'&ak='+data.ak+'&sk='+data.sk+'&expireIn='+data.expireIn);
     }else if(obj.event === 'edit'){
        
      }
@@ -110,36 +110,12 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
      updBucket(params)
    });
  
- 
-   var updBucket = function(params){
-     onsole.log('----修改参数----',params)
-     $.ajax({
-       url:api.requ_url+'/api/v1/bucket/update'
-       ,dataType:"json" //返回格式为json
-       ,data:params //参数值
-       ,type:"put" //请求方式
-       ,headers:{Authorization:'Bearer '+user.access_token}
-       ,success:function(res){
-          //请求成功时处理
-          console.log('-----success------',res)
-          if(res.errcode==0){
-             layer.msg('修改成功');
-             return
-          }
-          layer.msg('修改失败');
-       },
-       error:function(err){
-          //请求出错处理
-          console.log('-----error------',err)
-          layer.msg('修改失败');
-       }
-     });
-   }
 
-   var addBucket = function(params,that){
+
+   var addAkSk = function(params,that){
      console.log('----修改参数----',params)
      $.ajax({
-       url:api.requ_url+'/api/v1/bucket/create'
+       url:api.requ_url+'/api/v1/token'
        ,dataType:"json" //返回格式为json
        ,data:params //参数值
        ,type:"post" //请求方式
@@ -165,10 +141,10 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
      });
    }
  
-   var delBucket = function(params){
-     console.log('----修改参数----',params)
+   var delAkSk = function(params){
+     console.log('----删除参数----',params)
      $.ajax({
-       url:api.requ_url+'/api/v1/bucket/delete'
+       url:api.requ_url+'/api/v1/token/'
        ,dataType:"json" //返回格式为json
        ,data:params //参数值
        ,type:"delete" //请求方式
@@ -197,7 +173,7 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
       $('#form_description').val('');
       layer.open({
         type: 1 //此处以iframe举例
-        ,title: '当你选择该窗体时，即会在最顶端'
+        ,title: '添加 Ak 与 SK'
         ,area: ['690px', '340px']
         ,shade: 0.5
         ,maxmin: true
@@ -206,9 +182,8 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
         ,yes: function(){
           //$(that).click(); 
           let name = $('#form_name').val();
-          let description = $('#form_description').val();
-          let private = $('#form_private em').text();
-          addBucket({bucket:name,description:description,private:private=='ON'?true:false})
+          let expireIn = $('#form_expireIn').val();
+          addAkSk({token_name:name,token_expireIn:expireIn})
         }
         ,btn2: function(){
           layer.closeAll();
@@ -225,7 +200,4 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
   //  var addBucketFormClick = function(ddd){
     
   //  }()
- 
-   
- 
  });

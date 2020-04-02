@@ -17,6 +17,8 @@ layui.use([
   ,user = null
   ,bucket_name = null
   ,requ_params = null;
+  
+  var upload_token = '';
 
   user = layui.data('donkey').login_user;
   console.log('-----user-----',user)
@@ -26,7 +28,6 @@ layui.use([
   console.log('-------bucket_name--------',bucket_name);
   if(bucket_name!=null && bucket_name!=undefined){
 
-    console.log('11111111111')
     requ_params = {bucket:bucket_name[0],'end':''}
   }else{
     requ_params = {'end':''}
@@ -125,7 +126,7 @@ layui.use([
       layer.confirm('真的删除行么', function(index){
         obj.del();
         layer.close(index);
-        del_media({id:data.id})
+        del_media({id:[data.id]})
       });
     } else if(obj.event === 'edit'){
       
@@ -180,7 +181,7 @@ layui.use([
   //上传
   upload.render({
     elem: '#test10'
-    ,url: api.requ_url+'/api/v1/upload'
+    ,url: api.requ_url+'/api/v1/upload/'
     ,method:'post'
     ,headers:{Authorization:'Bearer '+user.access_token}
     ,data:''
@@ -191,8 +192,28 @@ layui.use([
     ,bindAction: '#btn_commit' //指向一个按钮触发上传
     ,before:function(obj){
       let name = $('#form_bucket_name').val()
+      let ctx_this = this;
+      $.ajax({
+        type: 'GET',
+        url: '/api/v1/valid/token',
+        data: {name:'upload_token', payload:name},
+        headers: {Authorization:'Bearer '+user.access_token},
+        dataType:"json",
+        async: false,
+        success: function (res) {
+          console.debug('upload_token', res);
+          ctx_this.data = {bucket:name, _token:res.data};
+        },
+        error: function (res) {
+          alert('net err try later!');
+          console.debug(res);
+        }
+      });
+      
+      /*
       console.log('--------bucket name---------',name)
       this.data={bucket:name}
+      */
     }
     ,choose: function(obj){
       console.log('---- choose obj----',obj)

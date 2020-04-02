@@ -1,0 +1,37 @@
+<html>
+<head>token detail</head>
+<body>
+<br>
+<br>
+<br>
+<p>name: <span id="name"></span></p>
+<br>
+<p>Ak: <span id="ak"></span></p>
+<br>
+<p>Sk: <span id="sk"></span></p>
+<br>
+<p>expireIn: <span id="expireIn"></span></p>
+<script src="./../layui/layui.js" charset="utf-8"></script>
+<script src="./../style/js/global.js" charset="utf-8"></script>
+<script src="./../style/js/utils/GetUrlParam.js" charset="utf-8"></script>
+<script>
+~ function () {
+    layui.use('jquery', function (){
+
+        var $ = layui.$;
+
+        var name = UrlParam.paramValues("name");
+        var ak = UrlParam.paramValues('ak');
+        var sk = UrlParam.paramValues('sk');
+        var expireIn = UrlParam.paramValues('expireIn');
+
+        $('span#name').html(name);
+        $('span#ak').html(ak);
+        $('span#sk').html(sk);
+        $('span#expireIn').html(expireIn);
+        
+    });
+} ();
+</script>
+</body>
+<html>

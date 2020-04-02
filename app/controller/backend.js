@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-03 10:47:49
- * @LastEditTime: 2020-02-24 09:04:10
+ * @LastEditTime: 2020-04-01 12:46:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/backend.js
@@ -18,11 +18,11 @@ class BackendController extends Controller {
   /**
    * @summary backend login
    * @description login Api, success return access_token or 401
-   * @router POST /api/v1/backend/login
+   * @router POST /api/v1/backend/login2
    * @request body authorize_login *login
    * @response 200 base_response ok
    */
-  async login() {
+  async login2() {
     let {login, password} = this.ctx.request.body;
     let {ctx} = this;
     let adminuser = await ctx.service.backend.authorize(login,password);
@@ -39,14 +39,14 @@ class BackendController extends Controller {
   /**
    * @summary backend login
    * @description login Api, success return access_token or 401
-   * @consumes application/x-www-form-urlencoded
-   * @router POST /api/v1/backend/login2
+   * @consumes application/x-www-form-urlencoded 
+   * @router POST /api/v1/backend/login
    * @request formData string *login login account
    * @request formData string *password login password
    * @response 200 base_response ok
    */
 
-  async login2() {
+  async login() {
     let {login, password} = this.ctx.request.body;
     let {ctx} = this;
     let adminuser = await ctx.service.backend.authorize(login,password);

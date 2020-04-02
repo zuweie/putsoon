@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:50:44
- * @LastEditTime: 2020-03-17 12:23:18
+ * @LastEditTime: 2020-04-02 11:51:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -9,6 +9,8 @@
 'use strict';
 const md5 = require('md5');
 const Op = require('sequelize').Op;
+const sequelize = require('sequelize');
+
 const Service = require('egg').Service;
 const uniqueString = require('unique-string');
 
@@ -65,14 +67,22 @@ class TokenService extends Service {
         }});
     }
 
-    async getToken (user_id, token_name) {
+    async getToken (user_id, token_name, page=1, perpage=20) {
 
-        return token_name? await Token.findAll({where:{
-            user_id: user_id,
-            name: token_name,
-        }}) : await Token.findAll({where:{
-            user_id: user_id,
-        }});
+        let _where = token_name ? {user_id: user_id, name: token_name} : {user_id: user_id};
+
+        let _count = await Token.findAll({
+            attributes:[ [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+            where:_where
+        });
+
+        let _tokens = await Token.findAll({
+            where:_where,
+            limit : perpage,
+            offset: (page-1)*perpage,
+        });
+
+        return {tokens: _tokens, count: _count[0].get('count')};
     }
 
     deleteToken(user_id, ids) {
@@ -115,6 +125,16 @@ class TokenService extends Service {
     }
 
     implodeToken(ak,sk, ... elements) {
+        let timestamp = Date.now();
+        let encode = md5(''+timestamp + '&&' + sk);
+        let token = ak+'&&'+encode+'&&'+timestamp;
+        for (let e of elements) {
+            token += '&&' + e;
+        }
+        return Buffer.from(token).toString('base64');
+    }
+
+    implodeToken2(ak, sk, elements) {
         let timestamp = Date.now();
         let encode = md5(''+timestamp + '&&' + sk);
         let token = ak+'&&'+encode+'&&'+timestamp;

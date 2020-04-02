@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-07 07:37:10
- * @LastEditTime: 2020-03-17 12:25:55
+ * @LastEditTime: 2020-04-02 12:14:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/token.js
@@ -22,12 +22,14 @@ class TokenController extends Controller {
    * @router POST /api/v1/token/
    * @request header string *Authorization Bearer <access_token>
    * @request formData string *token_name token name
+   * @request formData integer token_expireIn token expired, for second
    * @response 200 base_response ok
    */
     async gen_token () {
         let {payload} = this.ctx;
-        let {token_name} = this.ctx.request.body;
-        let _token =  await this.service.token.genToken(payload.user_id, token_name, this.app.config.token.upload_token_expireIn);
+        let {token_name, token_expireIn} = this.ctx.request.body;
+        let expireIn = token_expireIn ? token_expireIn : this.app.config.token.expireIn;
+        let _token =  await this.service.token.genToken(payload.user_id, token_name, expireIn);
         this.ctx.status = 200;
         this.ctx.body = this.ctx.helper.JsonFormat_ok(_token);
     }
@@ -42,9 +44,13 @@ class TokenController extends Controller {
      */
 
      async get_token () {
+         
          let {payload} = this.ctx;
-         let {token_name} = this.ctx.query;
-         let _token = await this.service.token.getToken(payload.user_id, token_name);
+         let {token_name, page, limit} = this.ctx.query;
+         page = page ? page : 1;
+         limit = limit ? limit : 20;
+
+         let _token = await this.service.token.getToken(payload.user_id, token_name, page, limit);
          this.ctx.status = 200;
          this.ctx.body = this.ctx.helper.JsonFormat_ok(_token);
      }
@@ -102,6 +108,36 @@ class TokenController extends Controller {
             let result = payload? this.ctx.service.token.implodeToken(ak,sk,payload) : this.ctx.service.token.implodeToken(ak,sk);
             this.ctx.status = 200;
             this.ctx.body = this.ctx.helper.JsonFormat_ok(result);
+       }
+
+       /**
+        * @summary Get a valid token
+        * @description Get a valid token
+        * @router GET /api/v1/valid/token
+        * @request header string *Authorization Bearer <access_token>
+        * @request query string name like bucket
+        * @request query string payload payload
+        * @response 200 base_response ok
+        */
+       async get_valid_token() {
+           let token_name = this.ctx.request.query.name;
+           let token_payload = this.ctx.request.queries.payload;
+           let {payload} = this.ctx;
+           console.debug('token_payload', token_name, token_payload);
+           if (token_name) {
+               let res = await this.service.token.getToken(payload.user_id, token_name, 1, 1);
+               if (res.count > 0) {
+                   let ak = res.tokens[0].ak;
+                   let sk = res.tokens[0].sk;
+                   let token = this.service.token.implodeToken2(ak,sk, token_payload);
+                   
+                   this.ctx.status = 200;
+                   this.ctx.body = this.ctx.helper.JsonFormat_ok(token);
+                   return;
+               }
+           }
+
+           this.ctx.status = 404;
        }
 } 
 

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:30:29
- * @LastEditTime: 2020-03-27 14:08:25
+ * @LastEditTime: 2020-03-31 22:25:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/bucket.js
@@ -41,7 +41,7 @@ class BucketController extends Controller {
    * @router GET /api/v1/bucket/show
    * @request header string *Authorization Bearer <access_token>
    * @request query integer *page page number
-   * @request query integer *perpage item number of perpage
+   * @request query integer *limit item number of perpage
    * @response 200 base_response ok
    */
   async show_buckets () {

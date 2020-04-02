@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-03-27 15:18:16
+ * @LastEditTime: 2020-03-31 22:26:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -125,7 +125,7 @@ class MediaController extends Controller {
      * @request header string *Authorization Bearer <access_token>
      * @request query string bucket bucket
      * @request query integer *page=1
-     * @request query integer *perpage=20
+     * @request query integer *limit=20
      * @response 200 base_response ok
      */
 
