@@ -74,7 +74,10 @@ layui.use([
         "count": res.data.count, //解析数据长度
         "data": res.data.medias //解析数据列表
       };
-  }
+    }
+    ,request:{
+      limitName: 'perpage',
+    }
     ,page: true
     ,id: 'tb_media'
   });

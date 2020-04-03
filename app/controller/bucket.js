@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:30:29
- * @LastEditTime: 2020-03-31 22:25:38
+ * @LastEditTime: 2020-04-03 07:43:25
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/bucket.js
@@ -41,14 +41,16 @@ class BucketController extends Controller {
    * @router GET /api/v1/bucket/show
    * @request header string *Authorization Bearer <access_token>
    * @request query integer *page page number
-   * @request query integer *limit item number of perpage
+   * @request query integer *perpage item number of perpage
    * @response 200 base_response ok
    */
   async show_buckets () {
     let {ctx} = this;
     let {payload} = ctx;
-    let {page, limit} = ctx.query;
-    let result = await this.service.bucket.showBuckets(payload.user_id, page, limit);
+    let {page, perpage} = ctx.query;
+    page = page ? page : 1;
+    perpage = perpage ? perpage : 20;
+    let result = await this.service.bucket.showBuckets(payload.user_id, page, perpage);
     ctx.status = 200;
     ctx.body = ctx.helper.JsonFormat_ok(result);
   }

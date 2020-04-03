@@ -7,8 +7,7 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
    ,form = layui.form;
 
    var user = layui.data('donkey').login_user;
-    console.log('-----user-----',user)
- 
+   
    var loadTableData = function(){
      table.render({
        elem: '#bucket'
@@ -40,8 +39,14 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
            "count": res.data.count, //解析数据长度
            "data": res.data.tokens //解析数据列表
          };
-     }
+        }
+       ,request: {
+         limitName: 'perpage'
+       }
        ,page: true
+       ,done: function (res) {
+         console.debug('table res', res);
+       }
      });
    }()
  
@@ -111,7 +116,19 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
    });
  
 
+   var checklogin = function (jq, access_token) {
 
+    console.log('Check login here');
+    jq.ajax ({
+        url: '/api/v1/backend/hello',
+        method: 'GET',
+        async: false,
+        headers:{Authorization:'Bearer '+access_token},
+        error: function (res) {
+            console.debug('test login @res', res);
+        }
+    });
+   }
    var addAkSk = function(params,that){
      console.log('----修改参数----',params)
      $.ajax({

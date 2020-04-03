@@ -98,9 +98,22 @@
     if(user==undefined){
       //未登录
       if (top.location.href != location.href) {
-          top.location.href ="../../putsoon-admin/web/login/login.html";
+          top.location.href ="./web/login/login.html";
       }
     }
+
+     ~function(jq, access_token) {
+     jq.ajax({
+       url: '/api/v1/backend/hello',
+       method: 'GET',
+       headers: { Authorization: 'Bearer ' + access_token },
+       error: function (res) {
+         if (res.status == 401) {
+            top.location.href ="./web/login/login.html";
+         }
+       }
+     });
+   }($,user.access_token);
 
     $('dd>a').click(function(e){
       e.preventDefault();

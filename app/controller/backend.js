@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-03 10:47:49
- * @LastEditTime: 2020-04-01 12:46:52
+ * @LastEditTime: 2020-04-03 08:25:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/backend.js
@@ -58,6 +58,19 @@ class BackendController extends Controller {
     }else{
       ctx.status = 401;
     }
+  }
+ 
+ /**
+  * @summary echo hello
+  * @description test login
+  * @router GET /api/v1/backend/hello
+  * @request header string *Authorization Bearer <access_token>
+  * @response 200 base_response ok
+  */
+  async hello () {
+    let {payload} = this.ctx;
+    this.ctx.status = 200;
+    this.ctx.body = 'hello '+payload.login;
   }
 }
 

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-07 07:37:10
- * @LastEditTime: 2020-04-02 12:14:14
+ * @LastEditTime: 2020-04-03 07:41:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/token.js
@@ -40,17 +40,19 @@ class TokenController extends Controller {
      * @router GET /api/v1/token/
      * @request header string *Authorization Bearer <access_token>
      * @request query string token_name token name
+     * @request query string page page number
+     * @request query string perpage perpage number
      * @response 200 base_response ok
      */
 
      async get_token () {
          
          let {payload} = this.ctx;
-         let {token_name, page, limit} = this.ctx.query;
+         let {token_name, page, perpage} = this.ctx.query;
          page = page ? page : 1;
-         limit = limit ? limit : 20;
+         perpage = perpage ? perpage : 20;
 
-         let _token = await this.service.token.getToken(payload.user_id, token_name, page, limit);
+         let _token = await this.service.token.getToken(payload.user_id, token_name, page, perpage);
          this.ctx.status = 200;
          this.ctx.body = this.ctx.helper.JsonFormat_ok(_token);
      }

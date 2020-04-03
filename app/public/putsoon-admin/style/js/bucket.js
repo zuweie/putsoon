@@ -41,8 +41,11 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
            "count": res.data.count, //解析数据长度
            "data": res.data.buckets //解析数据列表
          };
-     }
+        }
        ,page: true
+       ,request : {
+         limitName: 'perpage'
+       }
      });
    }()
  
