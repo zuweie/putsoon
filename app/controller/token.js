@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-07 07:37:10
- * @LastEditTime: 2020-04-03 07:41:39
+ * @LastEditTime: 2020-04-03 11:14:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/token.js
@@ -125,13 +125,13 @@ class TokenController extends Controller {
            let token_name = this.ctx.request.query.name;
            let token_payload = this.ctx.request.queries.payload;
            let {payload} = this.ctx;
-           console.debug('token_payload', token_name, token_payload);
+           //console.debug('token_payload', token_name, token_payload);
            if (token_name) {
                let res = await this.service.token.getToken(payload.user_id, token_name, 1, 1);
                if (res.count > 0) {
                    let ak = res.tokens[0].ak;
                    let sk = res.tokens[0].sk;
-                   let token = this.service.token.implodeToken2(ak,sk, token_payload);
+                   let token = this.service.token.implodeToken2(ak,sk, token_payload?token_payload:[]);
                    
                    this.ctx.status = 200;
                    this.ctx.body = this.ctx.helper.JsonFormat_ok(token);

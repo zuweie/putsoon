@@ -7,7 +7,7 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
    ,form = layui.form;
 
    var user = layui.data('donkey').login_user;
-   
+
    var loadTableData = function(){
      table.render({
        elem: '#bucket'
@@ -115,20 +115,6 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
      updBucket(params)
    });
  
-
-   var checklogin = function (jq, access_token) {
-
-    console.log('Check login here');
-    jq.ajax ({
-        url: '/api/v1/backend/hello',
-        method: 'GET',
-        async: false,
-        headers:{Authorization:'Bearer '+access_token},
-        error: function (res) {
-            console.debug('test login @res', res);
-        }
-    });
-   }
    var addAkSk = function(params,that){
      console.log('----修改参数----',params)
      $.ajax({

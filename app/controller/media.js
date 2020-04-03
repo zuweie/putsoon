@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-04-03 07:42:29
+ * @LastEditTime: 2020-04-03 10:53:57
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -124,29 +124,24 @@ class MediaController extends Controller {
      * @router GET /api/v1/files
      * @request header string *Authorization Bearer <access_token>
      * @request query string bucket bucket
-     * @request query integer *page=1
-     * @request query integer *perpage=20
+     * @request query integer page=1
+     * @request query integer perpage=20
      * @response 200 base_response ok
      */
 
      async show_files () {
          const {ctx} = this;
          const {payload} = ctx;
-         const {bucket, page, perpage} = ctx.request.query;
+         let {bucket, page, perpage} = ctx.request.query;
          //console.debug('controller.media.js#show_files@query', ctx.request.querystring);
          //console.debug('controller.media.js#show_files@curr@limit@query', page, limit, ctx.request.query);
-         if (bucket) {
-            page = page ? page : 1;
-            perpage = perpage ? perpage : 20;
-            let files = await this.service.media.getUploadMedia(bucket, payload.user_id, page, perpage);
-            //console.debug('controller.media.js#show_files@files', files);
-            ctx.status = 200;
-            ctx.body = ctx.helper.JsonFormat_ok(files);
-         }else {
-            let files = await this.service.media.getUserUploadMedia(payload.user_id, page, limit);
-            ctx.status = 200;
-            ctx.body = ctx.helper.JsonFormat_ok(files);
-         }
+         page = page ? page : 1;
+         perpage = perpage ? perpage : 20;
+         bucket = bucket ? bucket: '';
+         let files = await this.service.media.getUserUploadMedia(payload.user_id, bucket, page, perpage);
+         //console.debug('controller.media.js#show_files@files', files);
+         ctx.status = 200;
+         ctx.body = ctx.helper.JsonFormat_ok(files);
      }
 
     /**

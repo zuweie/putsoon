@@ -25,6 +25,7 @@ layui.use([
 
   //存在在bucket页面传bucket name 过来
   bucket_name = UrlParam.paramValues("bucket_name");
+  
   console.log('-------bucket_name--------',bucket_name);
   if(bucket_name!=null && bucket_name!=undefined){
 
@@ -51,23 +52,48 @@ layui.use([
       {type: 'checkbox', fixed: 'left'}
       //,{field:'id', title:'ID', fixed: 'left', unresize: true, sort: true}
       
-      ,{field:'path', title:'path',width:80,
+      ,{field:'path', title:'path',width:80,      
         templet: function(d){
-          return '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'" alt="" width="50px" height="50px"></div>';
+
+
+          var pic_html = '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'/ps/slim/auto" alt="" width="50px" height="50px"></div>';;
+          if (d.is_private) {
+            $.ajax({
+              url:'/api/v1/valid/token',
+              method:'GET',
+              headers:{Authorization:'Bearer '+user.access_token},
+              data:{name:'expose_token'},
+              dataType:"json",
+              async: false,
+              success:function (res) {
+                pic_html =  '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'/ps/slim/auto?_token='+res.data+'" alt="" width="50px" height="50px"></div>';
+              },
+              error: function (res) {
+                alert('net err');
+                console.debug('get expose token err', res);
+              }
+            });
+
+          }
+          console.debug('path_html', pic_html);
+          return pic_html;
         }}
       //,{field:'firstname', title:'firstname'}
       //,{field:'ext', title:'ext'}
       //,{field:'query_params', title:'query_params', edit: 'text'}
+      ,{field:'firstname', title:'filename', templet: function (d) {
+        return d.firstname+d.ext;
+      }}
       ,{field:'signature', title:'signature',width:280}
       //,{field:'file_hash', title:'file_hash'}
       ,{field:'mime', title:'mime',width:110}
       //,{field:'status', title:'status'}
       ,{field:'bucket', title:'bucket'}
-      ,{field:'createdAt', title:'createdAt'}
       //,{field:'updatedAt', title:'updatedAt'}
       ,{fixed: 'right', title:'操作', toolbar: '#barDemo',width:130}
     ]]
     ,parseData: function(res){ //res 即为原始返回的数据
+      console.debug('parseData', res);
       return {
         "code": res.errcode, //解析接口状态
         "msg": res.errmsg, //解析提示文本
@@ -112,6 +138,28 @@ layui.use([
 
     if(obj.event === 'detail'){
       //layer.msg('ID：'+ data.id + ' 的查看操作');
+
+      var detail_html = '<div style="text-align:center"><img src="/e/' + data.signature + '" /></div>';
+      
+      if (data.is_private) {
+        $.ajax({
+          url:'/api/v1/valid/token',
+          method:'GET',
+          headers:{Authorization:'Bearer '+user.access_token},
+          data:{name:'expose_token'},
+          dataType:"json",
+          async: false,
+          success:function (res) {
+            detail_html =  '<div οnclick="show_img(this)" ><img src="/e/'+data.signature+'?_token='+res.data+'"></div>';
+          },
+          error: function (res) {
+            alert('net err');
+            console.debug('get expose token err', res);
+          }
+        });
+      }
+      
+
       let pic = layer.open({
         type: 1
         ,skin: 'layui-layer-rim' //加上边框
@@ -122,7 +170,7 @@ layui.use([
         ,end: function (index, layero) {
             return false;
         }
-        ,content: '<div style="text-align:center"><img src="/e/' + data.signature + '" /></div>'
+        ,content: detail_html
       });
       layer.full(pic);
     } else if(obj.event === 'del'){
@@ -229,17 +277,9 @@ layui.use([
       obj.preview(function(index, file, result){
         console.log(index); //得到文件索引
         console.log(file); //得到文件对象
-        //console.log(result); //得到文件base64编码，比如图片
-        
-
+      
         $('#Preview_pic').append('<img style="width:200px;height:200px;margin:0px 7px 7px 0px;" src="'+ result +'" alt="'+ file.name +'" class="layui-upload-img">')
         
-        //obj.resetFile(index, file, '123.jpg'); //重命名文件名，layui 2.3.0 开始新增
-        
-        //这里还可以做一些 append 文件列表 DOM 的操作
-        
-        //obj.upload(index, file); //对上传失败的单个文件重新上传，一般在某个事件中使用
-        //delete files[index]; //删除列表中对应的文件，一般在某个事件中使用
       });
     }
     ,done: function(res){
