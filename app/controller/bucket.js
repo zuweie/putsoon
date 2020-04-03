@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 09:30:29
- * @LastEditTime: 2020-04-03 07:43:25
+ * @LastEditTime: 2020-04-03 11:48:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/bucket.js
@@ -56,34 +56,31 @@ class BucketController extends Controller {
   }
 
   /**
-   * @summary Update bucket (Abandoned)
+   * @summary Update bucket 
+   * @consumes application/x-www-form-urlencoded
    * @description Update bucket 
    * @router PUT /api/v1/bucket/update
    * @request header string *Authorization Bearer <access_token>
-   * @request query integer *id bucket id
-   * @request query string bucket bucket name
-   * @request query string description bucket description
-   * @request query integer is_private bucket is_private
+   * @request formData integer *id bucket id
+   * @request formData string description bucket description
+   * @request formData integer is_private bucket is_private
    * @response 200 base_response ok
    */
   async update_bucket() {
 
-    this.status = 400;
-    this.ctx.body = this.ctx.helper.JsonFormat_err('')
-    return;
     
     let { ctx } = this;
     let { payload } = ctx;
-    let { id } = ctx.query;
+    let { id, description, is_private } = ctx.request.body;
     let update_data = {};
 
-    if (ctx.query.bucket) update_data.bucket = ctx.query.bucket;
-    if (ctx.query.description) update_data.description = ctx.query.description;
-    if (ctx.query.is_private) update_data.is_private = ctx.query.is_private;
+    if (description) update_data.description = description;
+    if (is_private) update_data.is_private = is_private
 
     let result = await this.service.bucket.updateBucket(update_data, id, payload.user_id);
     ctx.status = 200;
     ctx.body = ctx.helper.JsonFormat_ok(result);
+    
    }
 
   /**

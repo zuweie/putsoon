@@ -56,7 +56,7 @@ layui.use([
         templet: function(d){
 
 
-          var pic_html = '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'/ps/slim/auto" alt="" width="50px" height="50px"></div>';;
+          var pic_html = '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'" alt="" width="50px" height="50px"></div>';;
           if (d.is_private) {
             $.ajax({
               url:'/api/v1/valid/token',
@@ -66,7 +66,7 @@ layui.use([
               dataType:"json",
               async: false,
               success:function (res) {
-                pic_html =  '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'/ps/slim/auto?_token='+res.data+'" alt="" width="50px" height="50px"></div>';
+                pic_html =  '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'?_token='+res.data+'" alt="" width="50px" height="50px"></div>';
               },
               error: function (res) {
                 alert('net err');

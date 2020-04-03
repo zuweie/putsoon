@@ -115,7 +115,7 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
  
  
    var updBucket = function(params){
-     onsole.log('----修改参数----',params)
+     //console.log('----修改参数----',params)
      $.ajax({
        url:api.requ_url+'/api/v1/bucket/update'
        ,dataType:"json" //返回格式为json
