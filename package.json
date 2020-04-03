@@ -28,7 +28,8 @@
     "shelljs": "^0.8.3",
     "sqlite3": "^4.1.1",
     "unique-string": "^2.0.0",
-    "yargs": "^15.1.0"
+    "yargs": "^15.1.0",
+    "putsoon-plugin-ps": "^0.0.2"
   },
   "devDependencies": {
     "autod": "^3.0.1",
