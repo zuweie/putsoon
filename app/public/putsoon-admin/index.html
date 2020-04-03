@@ -12,7 +12,7 @@
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
   <div class="layui-header">
-    <div class="layui-logo">PUTSOON</div>
+    <div class="layui-logo">PUTSOON v1.0.0</div>
     <!-- 头部区域（可配合layui已有的水平导航） -->
     <!-- <ul class="layui-nav layui-layout-left">
       <li class="layui-nav-item"><a href="">控制台</a></li>
@@ -81,7 +81,7 @@
   
   <div class="layui-footer">
     <!-- 底部固定区域 -->
-    © layui.com - 底部固定区域
+    powered by layui.com
   </div>
 </div>
 <script src="./layui/layui.js"></script>
@@ -95,11 +95,11 @@
     var user = layui.data('donkey').login_user;
     console.log('-----user-----',user)
 
-    if(user==undefined){
+    if(typeof user== 'undefined'){
       //未登录
-      if (top.location.href != location.href) {
-          top.location.href ="./web/login/login.html";
-      }
+      //if (top.location.href != location.href) {
+      top.location.href ="./web/login/login.html";
+      //}
     }
 
      ~function(jq, access_token) {
