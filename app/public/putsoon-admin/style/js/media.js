@@ -314,11 +314,15 @@ layui.use([
       });
     }
     ,done: function(res){
+      console.debug('reload the iframe');
+      window.location.href = window.location.href;
+      /*
       console.log(res)
       layer.msg('上传成功')
       table.reload('tb_media', { page: { curr: 1 } }, 'data');
       layer.closeAll();
-      btnAddClick()
+      */
+      //btnAddClick()
       //layui.$('#uploadDemoView').removeClass('layui-hide').find('img').attr('src', res.files.file);
       
     }
