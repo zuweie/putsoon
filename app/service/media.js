@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-04-03 10:52:34
+ * @LastEditTime: 2020-04-05 09:41:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -157,7 +157,7 @@ class MediaService extends Service {
 
             //console.debug('media.js#syncMediafile@medias', medias);
             
-            let signature = md5(filename+filehash);
+            let signature = md5(filename+filehash+_bucket.bucket);
 
             /**
              * case 1 完全是新的文件。

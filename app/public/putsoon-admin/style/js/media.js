@@ -17,8 +17,10 @@ layui.use([
   ,user = null
   ,bucket_name = null
   ,requ_params = null;
-  
+
+  var bucketlist = [];
   var upload_token = '';
+  var bucket_curr = '';
 
   user = layui.data('donkey').login_user;
   console.log('-----user-----',user)
@@ -28,12 +30,28 @@ layui.use([
   
   console.log('-------bucket_name--------',bucket_name);
   if(bucket_name!=null && bucket_name!=undefined){
-
     requ_params = {bucket:bucket_name[0],'end':''}
+    bucket_curr = bucket_name[0];
   }else{
     requ_params = {'end':''}
   }
   
+  
+  // 获取bucketlist
+  $.ajax({
+    url:"/api/v1/bucket/show",
+    method:"GET",
+    headers:{Authorization:'Bearer '+user.access_token},
+    data:{page:'1', perpage:'1000000'},
+    success:function (res){
+      bucketlist = res.data.buckets;
+    },
+    error: function (res) {
+      //console.debug(res);
+      alert('get bucket list err');
+    },
+  });
+
   console.debug(requ_params);
   table.render({
     elem: '#media'
@@ -56,7 +74,7 @@ layui.use([
         templet: function(d){
 
 
-          var pic_html = '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'" alt="" width="50px" height="50px"></div>';;
+          var pic_html = '<div οnclick="show_img(this)" ><img src="/e/'+d.signature+'"></div>';;
           if (d.is_private) {
             $.ajax({
               url:'/api/v1/valid/token',
@@ -73,7 +91,6 @@ layui.use([
                 console.debug('get expose token err', res);
               }
             });
-
           }
           console.debug('path_html', pic_html);
           return pic_html;
@@ -212,8 +229,22 @@ layui.use([
   var btnAddClick = function(){
     $('#btnAdd').click(function(){
       $('#Preview_pic').empty()
-      $('#form_bucket_name').val('')
 
+      var options = '';
+      bucketlist.forEach(function (b) {
+        if (bucket_curr != '' && b.bucket == bucket_curr) {
+          options += '<option value="'+b.bucket+'" selected=selected>'+b.bucket+'</option>';
+        }else{
+          options += '<option value="'+b.bucket+'">'+b.bucket+'</option>';
+        }
+      });
+      $('#form_bucket_name').html(options);
+      //upload_form.render();
+
+      /** select 选项动态添加后，需要重新渲染才能吧选项展示出来 **/
+      form.render('select');
+
+      /** 打开upload 面板的时候 产生 upload token */
       let index = layer.open({
         type: 1 //此处以iframe举例
         ,title: '添加'
@@ -242,7 +273,7 @@ layui.use([
     ,auto: false //选择文件后不自动上传
     ,bindAction: '#btn_commit' //指向一个按钮触发上传
     ,before:function(obj){
-      let name = $('#form_bucket_name').val()
+      let name = $('#form_bucket_name').val();
       let ctx_this = this;
       $.ajax({
         type: 'GET',
@@ -263,7 +294,7 @@ layui.use([
       
       /*
       console.log('--------bucket name---------',name)
-      this.data={bucket:name}
+      this.data={bucket:name, _token:upload_token};
       */
     }
     ,choose: function(obj){
@@ -293,8 +324,8 @@ layui.use([
     }
     ,error: function(index, upload){
       //当上传失败时，你可以生成一个“重新上传”的按钮，点击该按钮时，执行 upload() 方法即可实现重新上传
-      console.log('--upload error---',index)
-      layer.msg('hello');
+      //console.log('--upload error---',index)
+      //layer.msg('hello');
     }
   });
 

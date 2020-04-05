@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-04-03 10:53:57
+ * @LastEditTime: 2020-04-05 11:29:11
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -114,6 +114,7 @@ class MediaController extends Controller {
             ctx.body = ctx.helper.JsonFormat_ok(result);
             
         }else{
+            console.debug('controller#media.js', 'can not find bucket :', _bucket);
             ctx.status = 404;
         }
     }
@@ -194,11 +195,12 @@ class MediaController extends Controller {
         let result = false;
         let _media = await this.service.media.getMediaFile(params.signature);
         if (_media) {
-
+            
+            console.debug('controller#expose_file@_media', _media);
             if (_media.is_private) {
                 // TODO : 验证token
                 let token = ctx.query._token;
-                //console.debug('controller#media.js@token');
+                console.debug('controller#media.js@token');
                 //console.debug('controller#media.js@explode', await this.service.token.verifyToken(token));
                 if (!token || ! await this.service.token.verifyToken(token)) {
                     ctx.status = 401;
