@@ -200,7 +200,7 @@ layui.use(['jquery', 'element','layer','table','form','api'], function(){
       $('#form_description').val('');
       layer.open({
         type: 1 //此处以iframe举例
-        ,title: '当你选择该窗体时，即会在最顶端'
+        ,title: '添加'
         ,area: ['690px', '340px']
         ,shade: 0.5
         ,maxmin: true

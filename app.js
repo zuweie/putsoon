@@ -1,13 +1,13 @@
 /*
  * @Author: your name
  * @Date: 2020-02-05 10:28:31
- * @LastEditTime: 2020-03-10 15:09:23
+ * @LastEditTime: 2020-04-11 01:20:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app.js
  */
 
-let Tasklistener = [];
+let Tasklistener = new Map();
 const process = require('process');
 const fs = require('fs');
 
@@ -43,11 +43,12 @@ module.exports = (app) => {
     });
 
     app.messenger.on('task_done', (key)=>{
-        console.debug('app (pid '+ process.pid +') receive a message to update by new task status');
-        console.debug('app (pid '+ process.pid +') has listener '+Tasklistener.length);
-        Tasklistener.forEach(l=>{
-            l.onTaskStatus(key);
-        })
+        console.debug('app.js#task_done@app (pid '+ process.pid +') receive a message to update task of <'+key+'>');
+
+       let l = Tasklistener.get(key);
+       if (l) {
+           l.onTaskStatus(key);
+       }
     });
     
     app.messenger.on('_port', ()=>{
@@ -56,11 +57,14 @@ module.exports = (app) => {
     });
    
     app.addTasklistener = (l) =>{
+
         console.debug('pid '+process.pid+' add listener!');
-        Tasklistener.push(l);
+        Tasklistener.set(l.taskey, l);
+        //Tasklistener.push(l);
     };
     
     app.rmTasklistener = (l) => {
+        /*
         for(let i=0; i<Tasklistener.length; ++i) {
             if (l == Tasklistener[i]) {
                 console.debug('app pid '+ process.pid + ' rm listener !');
@@ -69,6 +73,8 @@ module.exports = (app) => {
                 break;
             }
         }
+        */
+       if (l) Tasklistener.delete(l.taskey);
     }
     app.publishTaskStatus = (key) => {
         listener.forEach(l=>{

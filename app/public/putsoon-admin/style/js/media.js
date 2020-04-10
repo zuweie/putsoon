@@ -155,9 +155,15 @@ layui.use([
 
     if(obj.event === 'detail'){
       //layer.msg('ID：'+ data.id + ' 的查看操作');
+      var detail_html = '<h4 style="text-align:center">original </h4>'
+      detail_html += '<div style="text-align:center"><img src="/e/' + data.signature + '" /></div><br>';
+      detail_html += '<h4 style="text-align:center">/slim/0.5</h4>'
+      detail_html += '<div style="text-align:center"><img src="/e/'+data.signature+'/ps/slim/0.5"></div><br>';
+      detail_html += '<h4 style="text-align:center">/resize/100 * 100</h4>'
+      detail_html += '<div style="text-align:center"><img src="/e/'+data.signature+'/ps/resize/100/100"></div><br>';
+      detail_html += '<h4 style="text-align:center">/resize/100 * 200</h4>'
+      detail_html += '<div style="text-align:center"><img src="/e/'+data.signature+'/ps/resize/100/200"></div><br>';
 
-      var detail_html = '<div style="text-align:center"><img src="/e/' + data.signature + '" /></div>';
-      
       if (data.is_private) {
         $.ajax({
           url:'/api/v1/valid/token',
@@ -274,7 +280,9 @@ layui.use([
     ,bindAction: '#btn_commit' //指向一个按钮触发上传
     ,before:function(obj){
       let name = $('#form_bucket_name').val();
-      let ctx_this = this;
+      let data = {};
+      data.bucket = name;
+
       $.ajax({
         type: 'GET',
         url: '/api/v1/valid/token',
@@ -284,18 +292,19 @@ layui.use([
         async: false,
         success: function (res) {
           console.debug('upload_token', res);
-          ctx_this.data = {bucket:name, _token:res.data};
+          //ctx_this.data = {bucket:name, _token:res.data};
+          data._token = res.data;
         },
         error: function (res) {
-          alert('net err try later!');
+          //alert('net err try later!');
           console.debug(res);
         }
       });
       
-      /*
+      
       console.log('--------bucket name---------',name)
-      this.data={bucket:name, _token:upload_token};
-      */
+      this.data=data;
+      
     }
     ,choose: function(obj){
       console.log('---- choose obj----',obj)

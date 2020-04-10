@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-15 15:01:49
- * @LastEditTime: 2020-03-16 14:07:10
+ * @LastEditTime: 2020-04-11 01:57:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task.js
@@ -9,8 +9,7 @@
 'use strict';
 const md5 = require('md5');
 const fs = require('fs');
-const path = require('path');
-const FileType = require('file-type');
+const uniString = require('unique-string');
 const Service = require('egg').Service;
 const Op = require('sequelize').Op;
 const Task = require('../../database/sequelize_model')('task');
@@ -62,7 +61,7 @@ class TaskService extends Service {
         for (let p of ppp) {
             key += '/'+p;
         }
-        console.debug('task.js#calKey@key', key);
+        //console.debug('task.js#calKey@key', key);
         return md5(key);
     }
 
@@ -75,7 +74,7 @@ class TaskService extends Service {
                 let executor = new Executor(_task, this);
                 //1 set task processing
                 let res = await executor.exec();
-                this.updateTaskDone(_task.key, res);
+                await this.updateTaskDone(_task.key, res);
                 return true;
             }else {
                 throw 'try time out of limit';
@@ -128,14 +127,23 @@ class TaskService extends Service {
 
                 let timer = 0;
                 let listener = {};
-                
-                listener.onTaskStatus = async (taskey) => {
-                    ctx_this.app.rmTasklistener(listener);
-                    if (timer) {
-                        clearTimeout(timer);
+                listener.taskey = taskey;
+
+                listener.onTaskStatus = async (tk) => {
+                    //console.debug('listener this', this);
+                    console.debug('task.js#onTaskstatus@tk, listener.taskey', tk, listener.taskey);
+                    if (tk == listener.taskey) {
+                        // 监听到的 taskey 与 
+                        ctx_this.app.rmTasklistener(listener);
+                        if (timer) {
+                            clearTimeout(timer);
+                        }
+                        let _doneTask = await ctx_this.findTask(tk);
+                        //console.debug('resolve @ l142 ', [_doneTask.status]);
+                        resolve(_doneTask);
+                    }else {
+                        console.debug('task.js#onTaskstatus@tk != this.taskey', tk, listener.taskey);
                     }
-                    let _doneTask = await ctx_this.findTask(taskey);
-                    resolve(_doneTask);
                 }
                 
                 ctx_this.app.addTasklistener(listener);
@@ -151,19 +159,22 @@ class TaskService extends Service {
                         // 1 remove the listaner
                         // 2 cleanTimer;
                         // 3 check the task 
-                        console.debug('task.js#triggerTask#timeout@timer', timer);
+                        //console.debug('task.js#triggerTask#timeout@timer', timer);
                         ctx_this.app.rmTasklistener(listener);
                         //clearTimeout(timer);
 
                         let _timeout_task = await _ctx_this.findTask(taskey);
-                        if (_task.status == 'processing') {
+                        if (_timeout_task.status == 'processing') {
+                            //console.debug('reject @ l168 ', [_timeout_task.status] );
                             reject({taskey});
                         }else{
+                            //console.debug('reslove @ l171 ', [_timeout_task.status]);
                             resolve(_timeout_task);
                         }
                     }, timeout * 1000);
                 }else {
                     // 不设置等待。马上返回当前正在处理的任务。
+                    //console.debug('reslove @ 176', [taskey]);
                     resolve({taskey})
                 }
                 
@@ -259,7 +270,8 @@ class TaskService extends Service {
     */
    
     mkTmpDir() {
-        let dir =  this.app.config.bucket.root+'.tmp/worker_'+process.pid+'/';
+        let working_dir = uniString();
+        let dir =  this.app.config.bucket.root+'.tmp/worker_'+process.pid+'/'+working_dir+'/';
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, {recursive: true});
         }

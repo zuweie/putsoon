@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-08 11:41:05
- * @LastEditTime: 2020-04-05 09:41:55
+ * @LastEditTime: 2020-04-11 01:59:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/media.js
@@ -354,6 +354,7 @@ class MediaService extends Service {
 
     async postCopyTask (_media, handler, _args) {
         let taskey = this.service.task.calKey(_media.firstname, handler, JSON.stringify(_args));
+        console.debug('media.js#postCopyTask@taskey', taskey);
         await this.service.task.newTask(
             _media.firstname, 
             taskey, 
@@ -367,6 +368,7 @@ class MediaService extends Service {
 
     async postDownloadTask (url, _args) {
         let taskey = this.service.task.calKey(url, JSON.stringify(_args));
+        console.debug('media.js#postDownloadTask@taskey', taskey);
         await this.service.task.newTask(
             'download '+url,
             taskey,
@@ -387,7 +389,7 @@ class MediaService extends Service {
             return {stream: fs.createReadStream(cache_file), mime: (fileinfo? fileinfo.mime: 'application/octet-stream'), length:stat.size};
         }else {
             let result = await this.TryToGetCopyMediafile(_media, handler, _args);
-            console.debug('media.js#getCopyMediafileStream@result', result);
+            console.debug('media.js#getCopyMediafileStream@result, _args', result, _args);
             if (fs.existsSync(result.file)) {
                 let fileinfo = await FileType.fromFile(result.file);
                 let stat = fs.statSync(result.file);
@@ -520,10 +522,15 @@ class MediaService extends Service {
             await this.postCopyTask(_media,handler, _args);
         }
         let _done_task = await this.service.task.triggerTask(taskey, sync?30:-1);
+        //console.debug('media.js#TryToGetCopyMediafile@_done_task', [_done_task.key, _done_task.params]);
+        
         if (_done_task.status == 'done') {
             return { file: _done_task._dest.dest };
         } else {
-            throw this.service.task.getLastErrmsg(_done_task);
+            if (_done_task.status == 'error')
+                throw this.service.task.getLastErrmsg(_done_task);
+            else
+                throw 'task status error <'+_done_task.status + '>';
         }
     }
     

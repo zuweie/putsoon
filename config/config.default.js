@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-04-02 12:39:55
+ * @LastEditTime: 2020-04-10 11:06:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/config/config.default.js
@@ -61,7 +61,7 @@ module.exports = appInfo => {
 
   config.bucket = {
     root:appInfo.baseDir+'/media_source/',
-    upload_guard : true
+    upload_guard : false
   };
 
   config.task = {

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-11 13:48:22
- * @LastEditTime: 2020-03-16 15:12:18
+ * @LastEditTime: 2020-04-10 12:57:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task_executors/donwload-executor.js
@@ -31,9 +31,10 @@
         
         if (_bucket && download_url) {
             let downloader = null;
+            let dest_dir = this._ctx.service.task.mkTmpDir();
+            
             if (this._task.handler != '') {
                 // handler downloader
-                let dest_dir = this._ctx.service.task.mkTmpDir();
                 downloader = require(this._ctx.app.plugin.prefix + handler)(download_url, dest_dir, this._task._params, this._ctx, this._task);
             }else {
 
@@ -41,7 +42,6 @@
                 let cxt_this = this;
                 downloader = new Promise( async (resolve, reject) => {
                     
-                    let dest_dir = cxt_this._ctx.service.task.mkTmpDir();
                     let tmp_file = dest_dir+'/download-'+Date.now()+'.tmp';    
                     let ws = fs.createWriteStream(tmp_file, {flags: 'w+'});
         
@@ -154,6 +154,7 @@
     
                     signatures.push(signature);
                 }
+                fs.rmdirSync(dest_dir, {maxRetries:5, recursive:true})
                 return signatures;
             }catch (e) {
                 console.debug('download-executor.js#download@e', e);

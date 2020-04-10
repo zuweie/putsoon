@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-06 13:49:20
- * @LastEditTime: 2020-04-05 11:29:11
+ * @LastEditTime: 2020-04-11 02:02:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/controller/media.js
@@ -196,11 +196,11 @@ class MediaController extends Controller {
         let _media = await this.service.media.getMediaFile(params.signature);
         if (_media) {
             
-            console.debug('controller#expose_file@_media', _media);
+            //console.debug('controller#expose_file@_media', _media);
             if (_media.is_private) {
                 // TODO : 验证token
                 let token = ctx.query._token;
-                console.debug('controller#media.js@token');
+                //console.debug('controller#media.js@token');
                 //console.debug('controller#media.js@explode', await this.service.token.verifyToken(token));
                 if (!token || ! await this.service.token.verifyToken(token)) {
                     ctx.status = 401;
@@ -215,7 +215,8 @@ class MediaController extends Controller {
                 try {
                     result = await ctx.service.media.getCopyMediafileStream(_media, params.media_handler, params.handler_parameters);
                 }catch(e) {
-                    console.log('controller#media.js#explose_file@e',e);
+                    //console.debug(_e.stack);
+                    //console.debug('controller#media.js#explose_file@e',_e, params.query);
                     ctx.status = 400;
                     ctx.body = e;
                     return;
@@ -224,14 +225,15 @@ class MediaController extends Controller {
                 result = await ctx.service.media.getMediaFileReadStream(_media);
                 //console.debug('controller#media.js@result', result);
             }
-
+            //console.debug('controller#media.js#expose_file@result', result);
+            
             if (result) {
                 ctx.status = 200;
                 ctx.set('Content-length', result.length);
                 ctx.set('Content-Type', result.mime);  
                 let stream = result.stream;
                 stream.on('close', async () => {
-                    console.debug('media.js#on_close', 'file stream close');
+                    //console.debug('media.js#on_close', 'file stream close');
                 });
                 ctx.body = stream;      
             }else{
