@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-11 13:48:22
- * @LastEditTime: 2020-04-10 12:57:27
+ * @LastEditTime: 2020-04-18 12:26:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/app/service/task_executors/donwload-executor.js
@@ -56,8 +56,6 @@
                     }
     
                     if (req_client) {
-    
-        
                         let headers = params.headers? params.headers: {};
                         req_client.get(download_url,{
                             headers: headers
@@ -88,7 +86,9 @@
                             });
                             res.on('end', ()=> {
                                 console.debug('download-executor.js#on_end');
-                                ws.close();
+                                ws.end();
+                            });
+                            ws.on('finish', ()=>{
                                 resolve(tmp_file);
                             });
                         }).on('error', e => {

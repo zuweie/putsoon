@@ -2,24 +2,26 @@
 /*
  * @Author: your name
  * @Date: 2019-12-09 15:48:15
- * @LastEditTime: 2020-03-07 13:48:44
+ * @LastEditTime: 2020-04-19 12:55:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/index.js
  */
 'use strict';
 const colors = require('colors/safe');
-
-
+const argv = require('yargs').argv;
 //console.log(process.argv[2]);
 let action = process.argv[2];
 // start installing
+//console.debug(argv);
+//return;
 
 try {
     if (action == 'install') {
         console.log(colors.green('Welcome to install Egg Media Server ...'));
         const install = require('./install');
-        install();
+        let {login, password} = argv;
+        install(login, password);
     }else if (action == 'seeding') {
         const seeding = require('./seeding');
         seeding();

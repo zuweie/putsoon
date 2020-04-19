@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 18:20:05
- * @LastEditTime: 2020-03-06 10:41:22
+ * @LastEditTime: 2020-04-19 13:13:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-mini-admin/libs/install.js
@@ -32,7 +32,7 @@ function replace_windows_path_split (path) {
     return path.replace(/\\/g, '\\\\');//.replace(/\//g, '\\\/');
 }
 
-module.exports = async function () {
+module.exports = async function (l, p) {
     
         console.log(colors.green('checking the locked file...'));
         let lockfile_path = path.join(process.cwd(), lockfile_name);
@@ -40,29 +40,36 @@ module.exports = async function () {
             throw 'mini-admin had installed. pls remove '+lockfile_name+ ' to continue...'
         }
 
-        let question = [
-           
-            {
-                type: 'input',
-                name: 'login',
-                message: "your login account (defalut admin) ? ",
-            },
-            {
-                type: 'input',
-                name: 'password',
-                message: "your login password (default 123456) ? ",
-            },
-        ];
+        // 没有 login 和 password 进来 则需要在此询问用户的 login 和 password
+        let answer = {nickname:'', login:l?(l).toString():'', password:p?(p).toString():'', email:''};
 
-        let {nickname, login, password, email} = await inquirer.prompt(question);
+        if (!l || !p) {
+            let question = [
+           
+                {
+                    type: 'input',
+                    name: 'login',
+                    message: "your login account (defalut admin) ? ",
+                },
+                {
+                    type: 'input',
+                    name: 'password',
+                    message: "your login password (default 123456) ? ",
+                },
+            ];
+            answer = await inquirer.prompt(question);
+        }
+        let {nickname, login, password, email} = answer;
         
+
+
         // 处理一下把$,换成 \$.
-        nickname = nickname? replace_money_symbol(nickname): 'Donkey';
+        nickname = nickname? replace_money_symbol(nickname): 'putsoon';
         login = login? replace_money_symbol(login): 'admin';
         password = password? replace_money_symbol(bcrypt_password(password)) : replace_money_symbol( bcrypt_password('123456') );
         email = email? replace_money_symbol(email): 'admin@admin.com';
 
-        //console.debug('install.js#install@install_info', nickname, login, password, email);
+        //console.debug('install.js#install@nickname, login, password, email', nickname, login, password, email);
         //return 0;
         /**
          * shell sequelize-cli
