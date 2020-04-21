@@ -278,6 +278,7 @@ layui.use([
     ,dataType:"json"
     ,auto: false //选择文件后不自动上传
     ,bindAction: '#btn_commit' //指向一个按钮触发上传
+    ,accept: 'file'
     ,before:function(obj){
       let name = $('#form_bucket_name').val();
       let data = {};

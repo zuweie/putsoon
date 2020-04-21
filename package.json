@@ -22,14 +22,14 @@
     "md5-file": "^4.0.0",
     "mime-type": "^3.0.7",
     "mime-types": "^2.1.26",
+    "putsoon-plugin-ps": "0.0.2",
     "save": "^2.4.0",
     "sequelize": "^5.21.3",
     "sequelize-cli": "^5.5.1",
     "shelljs": "^0.8.3",
     "sqlite3": "^4.1.1",
     "unique-string": "^2.0.0",
-    "yargs": "^15.1.0",
-    "putsoon-plugin-ps": "^0.0.2"
+    "yargs": "^15.1.0"
   },
   "devDependencies": {
     "autod": "^3.0.1",

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-01 13:54:38
- * @LastEditTime: 2020-04-10 11:06:16
+ * @LastEditTime: 2020-04-20 19:46:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /egg-media/config/config.default.js
@@ -56,7 +56,8 @@ module.exports = appInfo => {
 
   config.multipart = {
     mode: 'file',
-    fileExtensions: ['.pdf', '.docx'],
+    fileExtensions: ['.pdf', '.docx', '.zip'],
+    fileSize: 10 * 1024 * 1024 * 1024
   };
 
   config.bucket = {
