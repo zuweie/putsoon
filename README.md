@@ -47,6 +47,13 @@ npm run dev
 npm run dev -- --port=9001
 ``` 
 
+### docker 安装
+```
+// 因为官方的 docker hub 在中国地区太慢，改用阿里云的镜像服务
+docker pull registry.cn-hangzhou.aliyuncs.com/putsoon/putsoon:latest
+docker container run -d -p {export port}:7001 --name=putsoon {putsoon_imageID} /home/node/start_putsoon.sh
+```
+
 ### 快速开始
 - 启动 putsoon 后，在浏览器中输入 `http://127.0.0.1:{port}/admin`，登录后台。
 - 启动 putsoon 后，在浏览器中输入 `http://127.0.0.1:{port}/swagger-ui.html`，直接使用 API 测试页面。
